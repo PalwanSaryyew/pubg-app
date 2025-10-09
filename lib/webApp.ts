@@ -3,9 +3,9 @@ export const webApp = async () => {
 
    await WebApp.ready()
    ;
-   /* WebApp.setHeaderColor("#60A5FA");
-   WebApp.setBottomBarColor("#60A5FA");
-   WebApp.setBackgroundColor("#60A5FA"); */
-
+   WebApp.setHeaderColor(WebApp.themeParams.header_bg_color);
+   WebApp.setBottomBarColor(WebApp.themeParams.bottom_bar_bg_color);
+   WebApp.setBackgroundColor(WebApp.themeParams.bg_color);
+   WebApp.requestFullscreen()
    return WebApp;
 };
