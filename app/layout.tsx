@@ -39,7 +39,8 @@ export default function RootLayout({
             >
                <TelegramThemeProvider>
                   <Header />
-                  {children}
+                  <main className="py-26">{children}</main>
+
                   <Footer />
                </TelegramThemeProvider>
             </ThemeProvider>

@@ -1,7 +1,11 @@
-const Page = () => {
-  return (
-    <div className=''>Page</div>
-  )
-}
+import { AddProductField } from "@/components/forms/AddProductField";
 
-export default Page
+const Page = () => {
+   return (
+      <div className="container flex p-8">
+         <AddProductField />;
+      </div>
+   );
+};
+
+export default Page;

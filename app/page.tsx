@@ -75,7 +75,7 @@ export default function page() {
    return (
       <div
          className="
-      grid gap-6 px-4 py-26
+      grid gap-6 px-4 
       grid-cols-2             /* Varsayılan: Tek Sütun */
       sm:grid-cols-3          /* sm (640px) ve üstü: İki Sütun */
       lg:grid-cols-4          /* lg (1024px) ve üstü: Üç Sütun (isteğe bağlı) */
