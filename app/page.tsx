@@ -1,63 +1,98 @@
-import ProductCard from "@/components/custom/product/ProductCard";
-import Image from "next/image";
+import ProductCard from "@/components/product/ProductCard";
 
-export default function Home() {
+// Örnek ürün verisi
+const sampleProducts = [
+   {
+      id: "1",
+      name: "betinden gowy pubg akk",
+      description:
+         "eylen beylen seylen anry bari ol bul odur budur garynja yorunja Lorem ipsum dolor sit amet, consectetur adipisicing elit. Optio sed laboriosam eligendi laudantium itaque deleniti, iusto minima aliquam quidem amet!" ,
+      price: "1.299,00 TMT",
+      imageUrl: "/acc.jpg",
+   },
+   {
+      id: "2",
+      name: "gowy pubg akk",
+      description: "eylen beylen seylen anry bari ol bul",
+      price: "1.299,00 TMT",
+      imageUrl: "/acc.jpg",
+   },
+   {
+      id: "3",
+      name: "gowy pubg akk",
+      description: "eylen beylen seylen anry bari ol bul",
+      price: "1.299,00 TMT",
+      imageUrl: "/acc.jpg",
+   },
+   {
+      id: "4",
+      name: "gowy pubg akk",
+      description: "eylen beylen seylen anry bari ol bul",
+      price: "1.299,00 TMT",
+      imageUrl: "/acc.jpg",
+   },
+   {
+      id: "5",
+      name: "gowy pubg akk",
+      description: "eylen beylen seylen anry bari ol bul",
+      price: "1.299,00 TMT",
+      imageUrl: "/acc.jpg",
+   },
+   {
+      id: "6",
+      name: "gowy pubg akk",
+      description: "eylen beylen seylen anry bari ol bul",
+      price: "1.299,00 TMT",
+      imageUrl: "/acc.jpg",
+   },
+
+   {
+      id: "7",
+      name: "gowy pubg akk",
+      description: "eylen beylen seylen anry bari ol bul",
+      price: "1.299,00 TMT",
+      imageUrl: "/acc.jpg",
+   },
+
+   {
+      id: "8",
+      name: "gowy pubg akk",
+      description: "eylen beylen seylen anry bari ol bul",
+      price: "1.299,00 TMT",
+      imageUrl: "/acc.jpg",
+   },
+
+   {
+      id: "9",
+      name: "gowy pubg akk",
+      description: "eylen beylen seylen anry bari ol bul",
+      price: "1.299,00 TMT",
+      imageUrl: "/acc.jpg",
+   },
+];
+
+export default function page() {
    return (
-      <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
-         <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-            <ProductCard />
-            <ProductCard />
-            <ProductCard />
-            <ProductCard />
-         </main>
-
-         <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-            <a
-               className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-               href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-               target="_blank"
-               rel="noopener noreferrer"
-            >
-               <Image
-                  aria-hidden
-                  src="/file.svg"
-                  alt="File icon"
-                  width={16}
-                  height={16}
-               />
-               Learn
-            </a>
-            <a
-               className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-               href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-               target="_blank"
-               rel="noopener noreferrer"
-            >
-               <Image
-                  aria-hidden
-                  src="/window.svg"
-                  alt="Window icon"
-                  width={16}
-                  height={16}
-               />
-               Examples
-            </a>
-            <a
-               className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-               href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-               target="_blank"
-               rel="noopener noreferrer"
-            >
-               <Image
-                  aria-hidden
-                  src="/globe.svg"
-                  alt="Globe icon"
-                  width={16}
-                  height={16}
-               />
-               Go to nextjs.org →
-            </a>
-         </footer>
+      <div
+         className="
+      grid gap-6 px-4 py-26
+      grid-cols-2             /* Varsayılan: Tek Sütun */
+      sm:grid-cols-3          /* sm (640px) ve üstü: İki Sütun */
+      lg:grid-cols-4          /* lg (1024px) ve üstü: Üç Sütun (isteğe bağlı) */
+      xl:grid-cols-5          /* xl (1280px) ve üstü: Dört Sütun (isteğe bağlı) */
+    "
+      >
+         {/* ProductCard'lar burada listelenmeye devam ediyor */}
+         {sampleProducts.map((sampleProduct) => (
+            <ProductCard
+               key={sampleProduct.id}
+               id={sampleProduct.id}
+               name={sampleProduct.name}
+               description={sampleProduct.description}
+               price={sampleProduct.price}
+               imageUrl={sampleProduct.imageUrl}
+            />
+         ))}
       </div>
    );
 }
