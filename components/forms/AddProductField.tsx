@@ -27,11 +27,11 @@ export function AddProductField() {
                   </FieldDescription>
                   <FieldGroup>
                      <Field>
-                        <FieldLabel htmlFor="checkout-7j9-card-name-43j">
+                        <FieldLabel htmlFor="add-title">
                            Gysgaça ady
                         </FieldLabel>
                         <Input
-                           id="checkout-7j9-card-name-43j"
+                           id="add-title"
                            placeholder="20 simwoldan az"
                            required
                         />
@@ -66,11 +66,11 @@ export function AddProductField() {
                <FieldSet>
                   <FieldGroup>
                      <Field>
-                        <FieldLabel htmlFor="checkout-7j9-optional-comments">
+                        <FieldLabel htmlFor="add-description">
                            Giňişleýin düşündiriş
                         </FieldLabel>
                         <Textarea
-                           id="checkout-7j9-optional-comments"
+                           id="add-description"
                            placeholder="Goşmaça maglumatlary şu ýere giriziň..."
                            className="resize-none"
                         />
