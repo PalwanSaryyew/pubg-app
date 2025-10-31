@@ -13,11 +13,22 @@ import { Textarea } from "@/components/ui/textarea";
 import { CardDescription, CardFooter, CardHeader, CardTitle } from "../ui/card";
 import { AspectRatio } from "../ui/aspect-ratio";
 import { ImagePlus, Upload } from "lucide-react";
+import { webApp } from "@/lib/webApp";
 
-export function AddProductField() {
+export async function AddProductField() {
+   const initialData = (await webApp()).initData;
+   function handleSubmit(event: React.FormEvent) {
+      event.preventDefault();
+      const response = fetch("/api/auth", {
+         method: "POST",
+         body: JSON.stringify({
+            initData: initialData,
+         }),
+      });
+   }
    return (
       <div className="w-full max-w-md">
-         <form>
+         <form onSubmit={(e) => handleSubmit(e)}>
             <FieldGroup>
                <FieldSet>
                   <FieldLegend>PUBG Hasaby </FieldLegend>
@@ -27,9 +38,7 @@ export function AddProductField() {
                   </FieldDescription>
                   <FieldGroup>
                      <Field>
-                        <FieldLabel htmlFor="add-title">
-                           Gysgaça ady
-                        </FieldLabel>
+                        <FieldLabel htmlFor="add-title">Gysgaça ady</FieldLabel>
                         <Input
                            id="add-title"
                            placeholder="20 simwoldan az"
@@ -57,7 +66,7 @@ export function AddProductField() {
                         </CardDescription>
                      </CardHeader>
                      <CardFooter className="flex justify-center">
-                        <Button variant={'secondary'} size={"sm"}>
+                        <Button variant={"secondary"} size={"sm"}>
                            <Upload /> Ýükle
                         </Button>
                      </CardFooter>
