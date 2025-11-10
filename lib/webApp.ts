@@ -5,5 +5,5 @@ export const webApp = async () => {
    WebApp.setBottomBarColor(WebApp.themeParams.bottom_bar_bg_color);
    WebApp.setBackgroundColor(WebApp.themeParams.bg_color);
    WebApp.requestFullscreen()
-   return WebApp;
+   return WebApp ;
 };

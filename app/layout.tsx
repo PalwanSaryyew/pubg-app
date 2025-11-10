@@ -5,6 +5,7 @@ import { ThemeProvider } from "@/components/providers/theme-provider";
 import { TelegramThemeProvider } from "@/components/providers/telegram-theme-provider";
 import Header from "@/components/layout/header";
 import Footer from "@/components/layout/footer/footer";
+import { WebAppProvider } from "@/context/WebAppContext";
 
 const geistSans = Geist({
    variable: "--font-geist-sans",
@@ -38,10 +39,12 @@ export default function RootLayout({
                disableTransitionOnChange
             >
                <TelegramThemeProvider>
-                  <Header />
-                  <main className="py-26">{children}</main>
+                  <WebAppProvider>
+                     <Header />
+                     <main className="py-26">{children}</main>
 
-                  <Footer />
+                     <Footer />
+                  </WebAppProvider>
                </TelegramThemeProvider>
             </ThemeProvider>
          </body>

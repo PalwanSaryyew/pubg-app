@@ -13,22 +13,12 @@ import { Textarea } from "@/components/ui/textarea";
 import { CardDescription, CardFooter, CardHeader, CardTitle } from "../ui/card";
 import { AspectRatio } from "../ui/aspect-ratio";
 import { ImagePlus, Upload } from "lucide-react";
-import { webApp } from "@/lib/webApp";
+import AddProductForm from "./AddProductForm";
 
-export async function AddProductField() {
-   const initialData = (await webApp()).initData;
-   function handleSubmit(event: React.FormEvent) {
-      event.preventDefault();
-      const response = fetch("/api/auth", {
-         method: "POST",
-         body: JSON.stringify({
-            initData: initialData,
-         }),
-      });
-   }
+export default function AddProductField() {
    return (
-      <div className="w-full max-w-md">
-         <form onSubmit={(e) => handleSubmit(e)}>
+      <div className="w-full max-w-md mx-auto">
+         <AddProductForm>
             <FieldGroup>
                <FieldSet>
                   <FieldLegend>PUBG Hasaby </FieldLegend>
@@ -92,7 +82,7 @@ export async function AddProductField() {
                   </Button>
                </Field>
             </FieldGroup>
-         </form>
+         </AddProductForm>
       </div>
    );
 }

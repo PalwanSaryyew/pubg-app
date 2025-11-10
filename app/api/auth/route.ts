@@ -1,10 +1,6 @@
 // Gerekli Next.js ve TypeScript tiplerini içe aktarıyoruz
 import { validateTelegramInitData } from "@/lib/auth";
 import { NextRequest, NextResponse } from "next/server";
-
-// Kendi doğrulama fonksiyonunuzu içe aktarın
-// Lütfen yolu kendi dosya yapınıza göre ayarlayın!
-
 /**
  * Telegram Mini Uygulamasından gelen initData'yı doğrulamak için POST isteği işleyicisi.
  * @param request Gelen Next.js isteği
