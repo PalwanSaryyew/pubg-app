@@ -13,23 +13,66 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { CardDescription, CardFooter, CardHeader, CardTitle } from "../ui/card";
 import { AspectRatio } from "../ui/aspect-ratio";
-import { ImagePlus, Upload } from "lucide-react";
+import { ImagePlus, Upload, X } from "lucide-react"; // X ikonunu ekledik
 import AddProductForm from "./AddProductForm";
-import { useRef } from "react"; // useRef hook'unu ekleyin
+import { useRef, useState, ChangeEvent } from "react"; // useState ve ChangeEvent ekledik
+
+// Dosya önizleme türü
+interface PreviewFile extends File {
+    preview: string; // URL.createObjectURL ile oluşturulan önizleme URL'si
+}
 
 export default function AddProductField() {
-    // Gizli dosya girişine erişmek için bir ref oluşturun
     const fileInputRef = useRef<HTMLInputElement>(null);
+    // Seçilen ve önizlemesi yapılacak dosyaların listesi
+    const [selectedFiles, setSelectedFiles] = useState<PreviewFile[]>([]);
+    
+    // Yükleme formuna referans veriyoruz ki, dosya seçimi sonrası göndermeyi tetikleyebilelim.
+    const formRef = useRef<HTMLFormElement>(null); 
 
-    // Butona tıklandığında dosya girişini tetikleme fonksiyonu
+    // Kullanıcı bir dosya seçtiğinde çalışacak event handler
+    const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
+        const newFiles = Array.from(event.target.files || []) as PreviewFile[];
+        
+        if (newFiles.length === 0) return;
+
+        const filesWithPreview: PreviewFile[] = newFiles.map(file => 
+            Object.assign(file, {
+                preview: URL.createObjectURL(file)
+            })
+        );
+
+        // Yeni seçilen dosyaları mevcut listeye ekle
+        setSelectedFiles(prevFiles => [...prevFiles, ...filesWithPreview]);
+
+        // ESKİ KOD KALDIRILDI: formRef.current?.dispatchEvent(new Event('submit', ...));
+        // Yönlendirmeyi engellemek için otomatik gönderimi kaldırdık.
+
+        // Input'u temizle ki, kullanıcı aynı dosyaları tekrar seçebilsin
+        if (fileInputRef.current) {
+            fileInputRef.current.value = '';
+        }
+    };
+
+    // Önizlemeden dosya kaldırma
+    const removeFile = (fileName: string) => {
+        setSelectedFiles(prevFiles => prevFiles.filter(file => file.name !== fileName));
+        // Dosya input'unu da temizlemek gerekebilir (zorunlu değil, sadece görsel tutarlılık için)
+        if (fileInputRef.current) {
+             fileInputRef.current.value = '';
+        }
+    };
+
     const handleUploadClick = () => {
         fileInputRef.current?.click();
     };
 
     return (
         <div className="w-full max-w-md mx-auto">
-            <AddProductForm>
+            {/* Form'a ref veriyoruz */}
+            <AddProductForm ref={formRef} filesToUpload={selectedFiles}>
                 <FieldGroup>
+                    {/* ... (Başlık ve Açıklama Alanları - Değişmedi) ... */}
                     <FieldSet>
                         <FieldLegend>PUBG Hasaby </FieldLegend>
                         <FieldDescription>
@@ -50,11 +93,42 @@ export default function AddProductField() {
                             </Field>
                         </FieldGroup>
                     </FieldSet>
+                    {/* ... (Başlık ve Açıklama Alanları - Değişmedi) ... */}
 
+                    {/* RESİM YÜKLEME VE ÖNİZLEME ALANI */}
                     <FieldSet>
+                        {/* Önizleme Kapsayıcısı */}
+                        {selectedFiles.length > 0 && (
+                            <div className="grid grid-cols-3 gap-2 mb-4">
+                                {selectedFiles.map((file, index) => (
+                                    <div key={file.name} className="relative aspect-square">
+                                        <img 
+                                            src={file.preview} 
+                                            alt={`Önizleme ${index + 1}`} 
+                                            className="w-full h-full object-cover rounded-md border border-gray-200"
+                                        />
+                                        {/* Kaldırma butonu */}
+                                        <button 
+                                            type="button"
+                                            onClick={() => removeFile(file.name)}
+                                            className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 leading-none shadow-md hover:bg-red-600 transition-colors"
+                                        >
+                                            <X size={12} />
+                                        </button>
+                                        {/* Ana Resim etiketi */}
+                                        {index === 0 && (
+                                             <span className="absolute bottom-1 left-1 bg-blue-600 text-white text-xs font-bold px-1 rounded-sm">Esasy</span>
+                                        )}
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+                        
+                        {/* Yükleme Alanı */}
                         <AspectRatio
                             ratio={16 / 9}
-                            className="bg-popover rounded-lg border-dashed border-2 grid py-2"
+                            className="bg-popover rounded-lg border-dashed border-2 grid py-2 cursor-pointer"
+                            onClick={handleUploadClick} // Tıklama olayını ekle
                         >
                             <div className="justify-center flex items-end mb-1">
                                 <ImagePlus color="gray" size={35} />
@@ -64,36 +138,35 @@ export default function AddProductField() {
                                     Suratlary ýükläň
                                 </CardTitle>
                                 <CardDescription className="text-center text-xs ">
-                                    Azyndan 1 surat bolmaly. Birinji ýüklenen surat esasy
-                                    surat bolar.
+                                    Azyndan 1 surat bolmaly. Toplam {selectedFiles.length} surat seçildi.
                                 </CardDescription>
                             </CardHeader>
                             <CardFooter className="flex justify-center">
-                                {/* Dosya yükleme butonu, gizli input'u tetikler */}
                                 <Button 
                                     type="button" 
                                     variant={"secondary"} 
                                     size={"sm"}
-                                    onClick={handleUploadClick} // Tıklama olayını ekle
+                                    // Buton tıklaması yerine AspectRatio'yu kullandık, ancak buton da çalışmalı
+                                    onClick={(e) => { e.stopPropagation(); handleUploadClick(); }}
                                 >
-                                    <Upload className="w-4 h-4 mr-2" /> Ýükle
+                                    <Upload className="w-4 h-4 mr-2" /> Seç
                                 </Button>
-                                {/* GİZLİ DOSYA YÜKLEME INPUT'U */}
                                 <input
                                     type="file"
-                                    name="images" // ÖNEMLİ: FormData'nın dosyaları yakalaması için bir 'name' verin.
+                                    name="images" 
                                     id="images"
-                                    ref={fileInputRef} // Ref'i ekle
+                                    ref={fileInputRef} 
                                     multiple // Birden çok dosya yüklemeye izin ver
-                                    accept="image/*" // Yalnızca resim dosyalarını kabul et
-                                    className="sr-only" // Görünmez yap
+                                    accept="image/*" 
+                                    className="sr-only" 
+                                    onChange={handleFileChange} // Dosya seçildiğinde otomatik yüklemeyi tetikle
                                 />
                             </CardFooter>
                         </AspectRatio>
                     </FieldSet>
                     
-                    {/* ... diğer alanlar */}
-                    <FieldSet>
+                    {/* ... (Açıklama Alanı - Değişmedi) ... */}
+                     <FieldSet>
                         <FieldGroup>
                             <Field>
                                 <FieldLabel htmlFor="description">
@@ -110,11 +183,12 @@ export default function AddProductField() {
                             </Field>
                         </FieldGroup>
                     </FieldSet>
-                    {/* ... diğer alanlar */}
+                    {/* ... (Açıklama Alanı - Değişmedi) ... */}
                     
                     <Field orientation="horizontal">
-                        <Button type="submit" className="w-full">
-                            Tabşyr
+                         {/* Formu göndermek için bu butonu kullanabiliriz (metin verileri için) */}
+                        <Button type="submit" className="w-full" disabled={selectedFiles.length === 0}>
+                            Tabşyr (Metin ve Kayıt)
                         </Button>
                     </Field>
                 </FieldGroup>

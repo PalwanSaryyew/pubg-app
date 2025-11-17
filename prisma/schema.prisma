@@ -15,24 +15,27 @@ datasource db {
   directUrl = env("DIRECT_URL")
 }
 
+// schema.prisma
 model User {
-  id         Int       @id @default(autoincrement())
-  createdAt  DateTime  @default(now())
-  updatedAt  DateTime  @updatedAt
-  telegramId Int       @unique
-  username   String?
-  firstName  String
-  photoUrl   String?
-  Product    Product[]
+  // Telegram ID'si, sayısal hassasiyet kaybını önlemek için String olarak saklanır
+  id            String    @id @unique 
+  firstName     String
+  lastName      String?
+  username      String?   @unique
+  languageCode  String?
+  lastActivity  DateTime
+  products      Product[]
 }
 
 model Product {
-  id          Int      @id @default(autoincrement())
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  name        String
-  description String?
-  price       Float
-  sellerId    Int
-  seller      User     @relation(fields: [sellerId], references: [id])
+  id          String    @id @default(uuid())
+  title       String
+  description String
+  images      String[]
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  // İlişki
+  userId      String    // String olarak değiştirildi
+  user        User      @relation(fields: [userId], references: [id])
 }

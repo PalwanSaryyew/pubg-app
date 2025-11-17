@@ -2,6 +2,17 @@
 
 import * as crypto from 'crypto';
 import { env } from 'process';
+// @/lib/auth içinde veya ayrı bir types dosyasında
+export interface TelegramUser {
+    id: number; // Telegram ID'si genellikle number (veya BigInt) olarak gelir, ancak JSON.parse bunu number olarak verir.
+    first_name: string;
+    last_name?: string; // İsteğe bağlı
+    username?: string; // İsteğe bağlı
+    language_code?: string; // İsteğe bağlı
+    is_bot?: boolean;
+    is_premium?: boolean;
+    // ... Telegram'dan gelen diğer alanlar
+}
 
 // Next.js projenizin .env dosyasında BOT_TOKEN tanımlı olmalıdır.
 const BOT_TOKEN = env.BOT_TOKEN; 
@@ -48,13 +59,21 @@ export function validateTelegramInitData(initData: string): boolean {
 }
 
 // initData'dan kullanıcı verilerini (JSON string) güvenli bir şekilde çıkarır.
-export function getUserDataFromInitData(initData: string): unknown | null {
+export function getUserDataFromInitData(initData: string): TelegramUser | null {
     const params = new URLSearchParams(initData);
     const userDataString = params.get('user') || params.get('receiver');
     
     if (userDataString) {
         try {
-            return JSON.parse(userDataString);
+            // JSON.parse sonucu artık TelegramUser tipinde kabul edilecek
+            const parsedData: TelegramUser = JSON.parse(userDataString);
+            
+            // Opsiyonel: Verinin temel yapısını kontrol edebilirsiniz (örneğin id'nin varlığını)
+            if (typeof parsedData.id !== 'number') {
+                throw new Error("Geçersiz kullanıcı ID formatı.");
+            }
+
+            return parsedData;
         } catch (e) {
             console.error("Kullanıcı verisi JSON ayrıştırılamadı:", e);
             return null;
