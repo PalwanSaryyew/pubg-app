@@ -2,14 +2,14 @@
 "use client";
 
 import React, { createContext, useContext, useEffect, useState } from "react";
-import type { WebApp } from "@twa-dev/sdk";
+import WebApp from "@twa-dev/sdk";
 
-const WebAppContext = createContext<WebApp | null>(null);
+const WebAppContext = createContext<typeof WebApp | null>(null);
 
 export const useWebApp = () => useContext(WebAppContext);
 
 export const WebAppProvider = ({ children }: { children: React.ReactNode }) => {
-   const [webApp, setWebApp] = useState<WebApp | null>(null);
+   const [webApp, setWebApp] = useState<typeof WebApp | null>(null);
 
    useEffect(() => {
       const initWebApp = async () => {
@@ -26,8 +26,6 @@ export const WebAppProvider = ({ children }: { children: React.ReactNode }) => {
    }, []);
 
    return (
-      <WebAppContext.Provider value={webApp}>
-         {children}
-      </WebAppContext.Provider>
+      <WebAppContext.Provider value={webApp}>{children}</WebAppContext.Provider>
    );
-};  
+};
