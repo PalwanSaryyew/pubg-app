@@ -53,7 +53,7 @@ const AddProductForm = forwardRef(
                 });
 
                 if (response.ok) {
-                    const data = await response.json();
+                    await response.json();
                     
                     // BAŞARILI DURUM: Sadece burada yönlendirme yapılır.
                     setStatusMessage("✅ Başarılı! Ürün kaydedildi. Yönlendiriliyorsunuz...");

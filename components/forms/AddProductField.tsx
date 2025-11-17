@@ -16,6 +16,7 @@ import { AspectRatio } from "../ui/aspect-ratio";
 import { ImagePlus, Upload, X } from "lucide-react"; // X ikonunu ekledik
 import AddProductForm from "./AddProductForm";
 import { useRef, useState, ChangeEvent } from "react"; // useState ve ChangeEvent ekledik
+import Image from "next/image";
 
 // Dosya önizleme türü
 interface PreviewFile extends File {
@@ -102,7 +103,7 @@ export default function AddProductField() {
                             <div className="grid grid-cols-3 gap-2 mb-4">
                                 {selectedFiles.map((file, index) => (
                                     <div key={file.name} className="relative aspect-square">
-                                        <img 
+                                        <Image 
                                             src={file.preview} 
                                             alt={`Önizleme ${index + 1}`} 
                                             className="w-full h-full object-cover rounded-md border border-gray-200"

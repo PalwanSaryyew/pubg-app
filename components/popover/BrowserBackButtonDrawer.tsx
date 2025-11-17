@@ -16,6 +16,7 @@ import { WebApp } from "@twa-dev/types";
 import { webApp as Webapp } from "@/lib/webApp"; // Varsayılan webApp yükleme fonksiyonunuz
 import { ProductCardProps } from "../product/ProductCard";
 import { ProductPhotosCarousel } from "../product/ProductPhotosCarousel";
+import { Badge } from "../ui/badge";
 
 // TWA'nın kullanılabilir olup olmadığını kontrol eden bir tip koruması (type guard)
 const isTwaAvailable = (
@@ -34,7 +35,7 @@ export function BrowserBackButtonDrawer({
    name,
    description,
    price,
-   imageUrl,
+   imageUrls,
 }: ProductCardProps & {
    children: React.ReactNode;
 }) {
@@ -68,11 +69,15 @@ export function BrowserBackButtonDrawer({
    // Drawer'ı açma fonksiyonu
    const openDrawer = (productId: string) => {
       setDrawerState(true);
+      console.log(productId);
+      
       // Ürün ID'sini de URL'ye ekleyebiliriz, ancak şimdilik sadece açma parametresini kullanıyoruz.
    };
 
    // Drawer'ın açılma/kapanma durumu değiştiğinde (shadcn/ui tarafından tetiklenir)
    const onOpenChange = (open: boolean) => {
+      console.log(open);
+      
       if (isDrawerOpen) {
          closeDrawer();
       } else {
@@ -107,20 +112,23 @@ export function BrowserBackButtonDrawer({
          }
       };
    }, [webApp, closeDrawer]);
+   console.log(id);
+   
 
    return (
       <Drawer open={isDrawerOpen} onOpenChange={onOpenChange}>
          <DrawerTrigger>{children}</DrawerTrigger>
          <DrawerContent>
+            
             <div className="flex justify-center pt-4">
-               <ProductPhotosCarousel />
+               <ProductPhotosCarousel imageUrls={imageUrls}/>
             </div>
-            <DrawerHeader>
+            <DrawerHeader className="overflow-auto">
                <DrawerTitle>{name}</DrawerTitle>
-               <DrawerDescription>{description}</DrawerDescription>
+               <DrawerDescription className="overflow-auto">{description}</DrawerDescription>
             </DrawerHeader>
             <DrawerFooter>
-               <Button>Satyjy bilen habarlas</Button>
+               <Button >Satyjy bilen habarlas</Button>
                <DrawerClose></DrawerClose>
             </DrawerFooter>
          </DrawerContent>

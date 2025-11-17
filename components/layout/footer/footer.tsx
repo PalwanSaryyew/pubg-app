@@ -5,7 +5,7 @@ import {
    Plus,
    UserRound,
 } from "lucide-react";
-import { Button } from "../../ui/button";
+
 import NavButton from "./navButton";
 
 const Footer = () => {

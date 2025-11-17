@@ -13,8 +13,8 @@ export interface ProductCardProps {
    id: string;
    name: string;
    description: string;
-   price: string;
-   imageUrl: string;
+   price: number;
+   imageUrls: string[];
 }
 
 export default function ProductCard({
@@ -22,7 +22,7 @@ export default function ProductCard({
    name,
    description,
    price,
-   imageUrl,
+   imageUrls,
 }: ProductCardProps) {
    return (
       <BrowserBackButtonDrawer
@@ -30,14 +30,14 @@ export default function ProductCard({
          name={name}
          description={description}
          price={price}
-         imageUrl={imageUrl}
+         imageUrls={imageUrls}
       >
          <Card className="w-full overflow-hidden pt-0 pb-4 rounded-xl shadow-lg transition-all duration-300 hover:shadow-2xl">
             <CardHeader className="p-0">
                <div className="relative w-full aspect-video">
                   <Image
                      fill
-                     src={imageUrl}
+                     src={imageUrls[0]}
                      alt={name}
                      className="object-cover"
                   />
