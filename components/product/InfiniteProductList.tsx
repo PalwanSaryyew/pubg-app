@@ -119,23 +119,23 @@ export default function InfiniteProductList({ initialProducts, apiUrl }: Infinit
             {hasMore && (
                 <div ref={loaderRef} className="col-span-full py-6 text-center">
                     {isLoading ? (
-                        <p className="text-blue-500 font-semibold">Ürünler yükleniyor...</p>
+                        <p className="text-blue-500 font-semibold">Bildirişler yüklenyär...</p>
                     ) : (
                         // LoaderRef bu div'e bağlandı. Kullanıcı bu alanı gördüğünde yeni veri çekilecek.
-                        <p className="text-gray-400">Daha fazla ürün yüklenmek üzere.</p>
+                        <p className="text-gray-400">Dowamy ýüklenyär.</p>
                     )}
                 </div>
             )}
             
             {!hasMore && products.length > 0 && (
                 <div className="col-span-full py-10 text-center text-gray-500">
-                    Tüm ürünlere ulaştınız!
+                    Gutardy!
                 </div>
             )}
             
             {products.length === 0 && (
                 <div className="col-span-full text-center py-10 text-xl text-gray-500">
-                    Hiçbir ürün bulunamadı.
+                    Bildiriş ýok.
                 </div>
             )}
         </>

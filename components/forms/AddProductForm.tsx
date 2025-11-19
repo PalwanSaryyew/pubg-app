@@ -38,7 +38,7 @@ export default function AddProductForm() {
 
         // Dosya boyutunu ve sayısını kontrol et (Öneri)
         if (selectedFiles.length + newFiles.length > 6) {
-             setStatusMessage("❌ Hata: En fazla 6 resim yükleyebilirsiniz.");
+             setStatusMessage("❌ Ýalňyş: Iň köp 6 surat ýükläp bilýäňiz.");
              return;
         }
 
@@ -92,12 +92,12 @@ export default function AddProductForm() {
         if (isSubmitting) return; 
 
         if (selectedFiles.length === 0) {
-            setStatusMessage("❌ Hata: Lütfen en az bir resim yükleyin.");
+            setStatusMessage("❌ Ýalňyş: Azyndan bir surat saýlaň.");
             return;
         }
         
         setIsSubmitting(true);
-        setStatusMessage("Ürün bilgileri gönderiliyor...");
+        setStatusMessage("Maglumatlar ugradylýar...");
 
         const form = event.currentTarget; 
         const formData = new FormData(form); 
@@ -124,7 +124,7 @@ export default function AddProductForm() {
 
             if (response.ok) {
                 // Başarılı Durum
-                setStatusMessage("✅ Başarılı! Ürün kaydedildi. Yönlendiriliyorsunuz...");
+                setStatusMessage("✅ Üstünlikli! Bildiriş goşuldy. Garaşyň...");
                 setTimeout(() => {
                     router.push("/myproducts"); 
                 }, 1500); 
@@ -132,12 +132,12 @@ export default function AddProductForm() {
             } else {
                 const error = await response.json();
                 const errorMessage = error.error || "Bilinmeyen bir hata oluştu.";
-                setStatusMessage(`❌ Hata: ${errorMessage}`);
+                setStatusMessage(`❌ Error: ${errorMessage}`);
                 console.error("API isteği hatası:", error);
             }
 
         } catch (error) {
-            setStatusMessage("❌ Ağ Hatası: Sunucuya erişilemiyor veya işlem tamamlanamadı.");
+            setStatusMessage("❌ Tor ýalňyşlygy");
             console.error("İletişim hatası:", error);
         } finally {
             setIsSubmitting(false);
@@ -310,7 +310,7 @@ export default function AddProductForm() {
                         className="w-full" 
                         disabled={isSubmitting || selectedFiles.length === 0}
                     >
-                        {isSubmitting ? 'Gönderiliyor...' : 'Tabşyr'}
+                        {isSubmitting ? 'Ugradylýar...' : 'Tabşyr'}
                     </Button>
                 </div>
             </form>
