@@ -1,31 +1,17 @@
-import ProductCard from "@/components/product/ProductCard";
-import prisma from '@/prisma/prismaConf';
+// app/page.tsx
+import InfiniteProductList from "@/components/product/InfiniteProductList";
+import { getProducts } from "@/lib/data"; // Yeni fonksiyonu import et
 
-// Örnek ürün verisi
-const sampleProducts = await prisma.product.findMany()
+const INITIAL_LIMIT = 20;
 
-export default function page() {
+export default async function Page() {
+   // Doğrudan Prisma'dan ilk veriyi çek
+   const initialProducts = await getProducts({ limit: INITIAL_LIMIT, page: 1 });
+
+   // Client Component'in daha sonraki sayfaları çekmesi için API URL'sini ilet
+   const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000";
+
    return (
-      <div
-         className="
-      grid gap-2 px-4 
-      grid-cols-2             /* Varsayılan: Tek Sütun */
-      sm:grid-cols-3          /* sm (640px) ve üstü: İki Sütun */
-      lg:grid-cols-4          /* lg (1024px) ve üstü: Üç Sütun (isteğe bağlı) */
-      xl:grid-cols-5          /* xl (1280px) ve üstü: Dört Sütun (isteğe bağlı) */
-    "
-      >
-         {/* ProductCard'lar burada listelenmeye devam ediyor */}
-         {sampleProducts.map((sampleProduct) => (
-            <ProductCard
-               key={sampleProduct.id}
-               id={sampleProduct.id}
-               name={sampleProduct.title}
-               description={sampleProduct.description}
-               price={sampleProduct.price}
-               imageUrls={sampleProduct.images}
-            />
-         ))}
-      </div>
+      <InfiniteProductList initialProducts={initialProducts} apiUrl={apiUrl} />
    );
 }
