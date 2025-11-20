@@ -278,7 +278,7 @@ export default function AddProductForm() {
                                 <FieldLabel htmlFor="description">Giňişleýin düşündiriş</FieldLabel>
                                 <Textarea
                                     minLength={20}
-                                    maxLength={1000}
+                                    maxLength={10000}
                                     id="description"
                                     name="description"
                                     placeholder="Goşmaça maglumatlary şu ýere giriziň..."

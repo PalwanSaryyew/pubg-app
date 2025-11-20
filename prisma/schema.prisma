@@ -1,9 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client"
   output   = "../lib/generated/prisma"
@@ -15,28 +9,48 @@ datasource db {
   // directUrl = env("DIRECT_URL")
 }
 
-// schema.prisma
 model User {
-  // Telegram ID'si, sayısal hassasiyet kaybını önlemek için String olarak saklanır
-  id            String    @id @unique 
-  firstName     String
-  lastName      String?
-  username      String?   @unique
-  languageCode  String?
-  lastActivity  DateTime
-  products      Product[]
+  id           String    @id @unique 
+  firstName    String
+  lastName     String?
+  username     String?   @unique
+  languageCode String?
+  lastActivity DateTime
+  
+  // İlişkiler
+  products     Product[] // Kullanıcının sattığı ürünler
+  comments     Comment[] // Kullanıcının yaptığı yorumlar
 }
 
 model Product {
-  id          String    @id @default(uuid())
+  id          String   @id @default(uuid())
   title       String
   description String
   images      String[]
-  price       Float @default(0.0)
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  price       Float    @default(0.0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  // Satıcı İlişkisi
+  userId      String
+  user        User     @relation(fields: [userId], references: [id])
 
-  // İlişki
-  userId      String    // String olarak değiştirildi
-  user        User      @relation(fields: [userId], references: [id])
+  // Yorum İlişkisi
+  comments    Comment[] // Ürüne yapılan yorumlar
+}
+
+model Comment {
+  id        String   @id @default(uuid())
+  text      String   // Yorum metni
+  rating    Int?     // 1-5 arası puan (İsteğe bağlı, boş bırakılabilir)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Hangi ürüne yapıldı?
+  productId String
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  // Kim yaptı?
+  userId    String
+  user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 }

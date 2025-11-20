@@ -17,6 +17,7 @@ import { webApp as Webapp } from "@/lib/webApp"; // Varsayılan webApp yükleme 
 import { ProductCardProps } from "../product/ProductCard";
 import { ProductPhotosCarousel } from "../product/ProductPhotosCarousel";
 import { Badge } from "../ui/badge";
+import { ButtonGroup, ButtonGroupSeparator } from "../ui/button-group";
 
 // TWA'nın kullanılabilir olup olmadığını kontrol eden bir tip koruması (type guard)
 const isTwaAvailable = (
@@ -70,14 +71,14 @@ export function BrowserBackButtonDrawer({
    const openDrawer = (productId: string) => {
       setDrawerState(true);
       console.log(productId);
-      
+
       // Ürün ID'sini de URL'ye ekleyebiliriz, ancak şimdilik sadece açma parametresini kullanıyoruz.
    };
 
    // Drawer'ın açılma/kapanma durumu değiştiğinde (shadcn/ui tarafından tetiklenir)
    const onOpenChange = (open: boolean) => {
       console.log(open);
-      
+
       if (isDrawerOpen) {
          closeDrawer();
       } else {
@@ -113,23 +114,73 @@ export function BrowserBackButtonDrawer({
       };
    }, [webApp, closeDrawer]);
    console.log(id);
-   
 
    return (
       <Drawer open={isDrawerOpen} onOpenChange={onOpenChange}>
          <DrawerTrigger>{children}</DrawerTrigger>
-         <DrawerContent>
-            
-            <div className="flex justify-center pt-4">
-               <ProductPhotosCarousel imageUrls={imageUrls}/>
+
+         {/* 1. ADIM: DrawerContent'e yükseklik ve flex düzeni verin */}
+         <DrawerContent className="!max-h-[90dvh]">
+            {/* 2. ADIM: Kaydırılabilir (Scrollable) alan oluşturun */}
+            {/* Bu div, footer hariç tüm içeriği kapsar ve kalan boşluğu doldurur */}
+            <div className="flex-1 overflow-y-auto px-4">
+               <div className="flex justify-center pt-4">
+                  <ProductPhotosCarousel imageUrls={imageUrls} />
+               </div>
+
+               <DrawerHeader className="px-0">
+                  {" "}
+                  {/* İçerideki padding'i sıfırlayabilirsiniz */}
+                  <DrawerTitle>{name}</DrawerTitle>
+                  <DrawerDescription>{description}</DrawerDescription>
+               </DrawerHeader>
             </div>
-            <DrawerHeader className="overflow-auto">
-               <DrawerTitle>{name}</DrawerTitle>
-               <DrawerDescription className="overflow-auto">{description}</DrawerDescription>
-            </DrawerHeader>
-            <DrawerFooter>
-               <Button >Satyjy bilen habarlas</Button>
-               <DrawerClose></DrawerClose>
+
+            {/* 3. ADIM: Footer her zaman en altta sabit kalır */}
+            <DrawerFooter className="pt-2 bg-card rounded-t-4xl border-t">
+               {/* Dış Kapsayıcı:
+    - grid-cols-2: İkiye böl
+    - gap-px: Butonlar arasında 1px boşluk bırak (çizgi için)
+    - bg-border: O boşluklardan görünecek çizgi rengi (Shadcn border rengi)
+    - rounded-2xl: Köşeleri daha fazla yuvarla
+    - overflow-hidden: Butonlar köşelerden taşmasın
+    - border: En dışa çerçeve çiz
+*/}
+               <div className="grid grid-cols-2 gap-1 rounded-2xl overflow-hidden">
+                  {/* 1. Buton (Sol Üst) */}
+                  <Button
+                     variant="secondary"
+                     className="w-full rounded-sm shadow-none border-none bg-accent hover:bg-accent text-foreground"
+                  >
+                     Satyn al
+                  </Button>
+
+                  {/* 2. Buton (Sağ Üst) */}
+                  <Button
+                     variant="secondary"
+                     className="w-full rounded-sm shadow-none border-none bg-accent hover:bg-accent text-foreground"
+                  >
+                     Teswirler
+                  </Button>
+
+                  {/* 3. Buton (Sol Alt) */}
+                  <Button
+                     variant="secondary"
+                     className="w-full rounded-sm shadow-none border-none bg-accent hover:bg-accent text-foreground"
+                  >
+                     Paýlaş
+                  </Button>
+
+                  {/* 4. Buton (Sağ Alt - Kapat) */}
+                  <DrawerClose asChild>
+                     <Button
+                        variant="secondary"
+                        className="w-full rounded-sm shadow-none border-none bg-accent hover:bg-destructive hover:text-destructive-foreground text-foreground"
+                     >
+                        Ýap
+                     </Button>
+                  </DrawerClose>
+               </div>
             </DrawerFooter>
          </DrawerContent>
       </Drawer>
