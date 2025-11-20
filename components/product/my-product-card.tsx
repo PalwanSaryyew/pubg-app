@@ -25,6 +25,7 @@ import Link from "next/link"
 import { deleteProduct, toggleProductStatus } from "@/actions/product-actions"
 import { toast } from "sonner" // Veya kullandığın toast kütüphanesi
 import { Product } from "@/lib/generated/prisma/client"
+import { useRouter } from "next/navigation" // <-- EKLENDİ
 
 interface MyProductCardProps {
   product: Product
@@ -32,25 +33,33 @@ interface MyProductCardProps {
 
 export function MyProductCard({ product }: MyProductCardProps) {
   
+  const router = useRouter() // <-- Router'ı başlat
+
   const handleToggleStatus = async () => {
+    // 1. Server action'ı çağır
     const result = await toggleProductStatus(product.id, product.isPublished)
+
+    // 2. Sonuca göre işlem yap
     if (result.success) {
-      toast.success(product.isPublished ? "Ürün listeden kaldırıldı" : "Ürün yayına alındı")
+      toast.success(product.isPublished ? "Ürün yayından kaldırıldı" : "Ürün yayına alındı")
+      router.refresh() // <-- EKLENDİ: Arayüzü zorla yenile
     } else {
-      toast.error("Bir hata oluştu")
+      toast.error("Durum güncellenemedi.")
     }
   }
 
   const handleDelete = async () => {
-    // İstersen buraya bir "Emin misin?" dialog'u ekleyebiliriz
+    // Basit confirm yerine sonradan AlertDialog ekleyebiliriz
     const confirmDelete = confirm("Bu ürünü silmek istediğine emin misin?")
     if (!confirmDelete) return
 
     const result = await deleteProduct(product.id)
+
     if (result.success) {
-      toast.success("Ürün silindi")
+      toast.success("Ürün başarıyla silindi")
+      router.refresh() // <-- EKLENDİ: Ürün silindikten sonra listeyi yenile
     } else {
-      toast.error("Silinirken hata oluştu")
+      toast.error("Ürün silinirken bir hata oluştu")
     }
   }
 

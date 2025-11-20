@@ -6,6 +6,7 @@ import { TelegramThemeProvider } from "@/components/providers/telegram-theme-pro
 import Header from "@/components/layout/header";
 import Footer from "@/components/layout/footer/footer";
 import { WebAppProvider } from "@/context/WebAppContext";
+import { Toaster } from "@/components/ui/sonner";
 
 const geistSans = Geist({
    variable: "--font-geist-sans",
@@ -44,6 +45,7 @@ export default function RootLayout({
                      <main className="py-26">{children}</main>
 
                      <Footer />
+                     <Toaster />
                   </WebAppProvider>
                </TelegramThemeProvider>
             </ThemeProvider>
