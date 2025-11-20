@@ -1,9 +1,9 @@
+// actions/product-actions.ts
 "use server";
 
-import prisma from "@/prisma/prismaConf"; // Prisma client'ının olduğu yer
+import prisma from "@/prisma/prismaConf";
 import { revalidatePath } from "next/cache";
 
-// Ürün listelemesini duraklat/devam ettir
 export async function toggleProductStatus(
    productId: string,
    currentStatus: boolean
@@ -11,16 +11,17 @@ export async function toggleProductStatus(
    try {
       await prisma.product.update({
          where: { id: productId },
-         data: { isPublished: !currentStatus }, // Veya isActive, şemana göre
+         data: { isPublished: !currentStatus },
       });
+      // Sunucu önbelleğini temizle
       revalidatePath("/myproducts");
       return { success: true };
    } catch (error) {
-      return { success: false, error: "Durum güncellenemedi" };
+      console.error("Status update error:", error);
+      return { success: false, error: "Veritabanı hatası" };
    }
 }
 
-// Ürünü silme
 export async function deleteProduct(productId: string) {
    try {
       await prisma.product.delete({
@@ -29,6 +30,6 @@ export async function deleteProduct(productId: string) {
       revalidatePath("/myproducts");
       return { success: true };
    } catch (error) {
-      return { success: false, error: "Ürün silinemedi" };
+      return { success: false, error: "Silme işlemi başarısız" };
    }
 }
