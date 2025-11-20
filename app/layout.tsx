@@ -44,8 +44,15 @@ export default function RootLayout({
                      <Header />
                      <main className="py-26">{children}</main>
 
+                     <Toaster
+                        position="top-center"
+                        toastOptions={{
+                           style: {
+                              marginTop: "70px",
+                           },
+                        }}
+                     />
                      <Footer />
-                     <Toaster />
                   </WebAppProvider>
                </TelegramThemeProvider>
             </ThemeProvider>
