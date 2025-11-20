@@ -150,7 +150,7 @@ export function BrowserBackButtonDrawer({
                   {/* 1. Buton (Sol Üst) */}
                   <Button
                      variant="secondary"
-                     className="w-full rounded-sm shadow-none border-none bg-accent hover:bg-accent text-foreground"
+                     className="w-full rounded-sm shadow-none border-none bg-popover hover:bg-secondary text-foreground"
                   >
                      Satyn al
                   </Button>
@@ -158,7 +158,7 @@ export function BrowserBackButtonDrawer({
                   {/* 2. Buton (Sağ Üst) */}
                   <Button
                      variant="secondary"
-                     className="w-full rounded-sm shadow-none border-none bg-accent hover:bg-accent text-foreground"
+                     className="w-full rounded-sm shadow-none border-none bg-popover hover:bg-secondary text-foreground"
                   >
                      Teswirler
                   </Button>
@@ -166,7 +166,7 @@ export function BrowserBackButtonDrawer({
                   {/* 3. Buton (Sol Alt) */}
                   <Button
                      variant="secondary"
-                     className="w-full rounded-sm shadow-none border-none bg-accent hover:bg-accent text-foreground"
+                     className="w-full rounded-sm shadow-none border-none bg-popover hover:bg-secondary text-foreground"
                   >
                      Paýlaş
                   </Button>
@@ -175,7 +175,7 @@ export function BrowserBackButtonDrawer({
                   <DrawerClose asChild>
                      <Button
                         variant="secondary"
-                        className="w-full rounded-sm shadow-none border-none bg-accent hover:bg-destructive hover:text-destructive-foreground text-foreground"
+                        className="w-full rounded-sm shadow-none border-none bg-popover hover:bg-destructive hover:text-destructive-foreground text-foreground"
                      >
                         Ýap
                      </Button>
