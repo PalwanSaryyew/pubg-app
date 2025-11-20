@@ -1,5 +1,13 @@
 "use client"
 
+import { useState } from "react" // <-- State'i ekle
+import { useRouter } from "next/navigation"
+import { toast } from "sonner"
+import { 
+  // ... diğer ikonlar ...
+  MoreHorizontal, Edit, Trash, Eye, MessageSquare, PauseCircle, PlayCircle, Loader2 
+} from "lucide-react"
+// ... diğer importlar ...
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -11,72 +19,88 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { 
-  MoreHorizontal, 
-  Edit, 
-  Trash, 
-  Eye, 
-  MessageSquare, 
-  PauseCircle, 
-  PlayCircle 
-} from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
 import { deleteProduct, toggleProductStatus } from "@/actions/product-actions"
-import { toast } from "sonner" // Veya kullandığın toast kütüphanesi
 import { Product } from "@/lib/generated/prisma/client"
-import { useRouter } from "next/navigation" // <-- EKLENDİ
 
 interface MyProductCardProps {
   product: Product
 }
 
 export function MyProductCard({ product }: MyProductCardProps) {
+  const router = useRouter()
   
-  const router = useRouter() // <-- Router'ı başlat
+  // Yerel State'ler (Anlık tepki için)
+  const [isDeleted, setIsDeleted] = useState(false) // Kart silindi mi?
+  const [isPublished, setIsPublished] = useState(product.isPublished) // Yayın durumu
+  const [isLoading, setIsLoading] = useState(false) // İşlem sürüyor mu?
+
+  // Eğer silindiyse, bileşeni hiç render etme (DOM'dan kaldır)
+  if (isDeleted) return null
 
   const handleToggleStatus = async () => {
-    // 1. Server action'ı çağır
-    const result = await toggleProductStatus(product.id, product.isPublished)
-
-    // 2. Sonuca göre işlem yap
-    if (result.success) {
-      toast.success(product.isPublished ? "Ürün yayından kaldırıldı" : "Ürün yayına alındı")
-      router.refresh() // <-- EKLENDİ: Arayüzü zorla yenile
-    } else {
-      toast.error("Durum güncellenemedi.")
+    setIsLoading(true)
+    
+    // 1. Hemen arayüzü güncelle (Optimistic)
+    const newStatus = !isPublished
+    setIsPublished(newStatus)
+    
+    try {
+      const result = await toggleProductStatus(product.id, isPublished)
+      if (result.success) {
+        toast.success(newStatus ? "Ürün yayına alındı" : "Ürün duraklatıldı")
+        router.refresh()
+      } else {
+        // Hata olursa eski haline döndür
+        setIsPublished(!newStatus)
+        toast.error("Durum güncellenemedi")
+      }
+    } catch (error) {
+       setIsPublished(!newStatus)
+       toast.error("Bir hata oluştu")
+    } finally {
+       setIsLoading(false)
     }
   }
 
   const handleDelete = async () => {
-    // Basit confirm yerine sonradan AlertDialog ekleyebiliriz
     const confirmDelete = confirm("Bu ürünü silmek istediğine emin misin?")
     if (!confirmDelete) return
 
-    const result = await deleteProduct(product.id)
+    setIsLoading(true)
 
-    if (result.success) {
-      toast.success("Ürün başarıyla silindi")
-      router.refresh() // <-- EKLENDİ: Ürün silindikten sonra listeyi yenile
-    } else {
-      toast.error("Ürün silinirken bir hata oluştu")
+    try {
+      const result = await deleteProduct(product.id)
+
+      if (result.success) {
+        // 2. Başarılıysa kartı hemen yok et
+        setIsDeleted(true) 
+        toast.success("Ürün silindi")
+        router.refresh() // Arka planda yine de veriyi tazele
+      } else {
+        toast.error("Silinirken hata oluştu")
+      }
+    } catch (error) {
+      toast.error("Bir hata oluştu")
+    } finally {
+      setIsLoading(false)
     }
   }
 
   return (
-    <Card className="overflow-hidden flex flex-col justify-between">
+    <Card className={`overflow-hidden flex flex-col justify-between transition-opacity ${isLoading ? 'opacity-50' : 'opacity-100'}`}>
       <div className="relative h-48 w-full">
-        {/* Ürün Resmi (Varsa) */}
         <Image
-          src={product.images?.[0] || "/placeholder.png"} // Resim yoksa placeholder
+          src={product.images?.[0] || "/placeholder.png"}
           alt={product.title}
           fill
           className="object-cover"
         />
-        {/* Durum Rozeti */}
         <div className="absolute top-2 right-2">
-            <Badge variant={product.isPublished ? "default" : "secondary"}>
-                {product.isPublished ? "Yayında" : "Duraklatıldı"}
+            {/* State'teki isPublished değerini kullanıyoruz */}
+            <Badge variant={isPublished ? "default" : "secondary"}>
+                {isPublished ? "Yayında" : "Duraklatıldı"}
             </Badge>
         </div>
       </div>
@@ -89,18 +113,16 @@ export function MyProductCard({ product }: MyProductCardProps) {
       </CardHeader>
 
       <CardFooter className="flex gap-2 pt-4">
-        {/* Ana Buton: Düzenle */}
-        <Button asChild variant="outline" className="flex-1">
+        <Button asChild variant="outline" className="flex-1" disabled={isLoading}>
           <Link href={`/dashboard/edit/${product.id}`}>
             <Edit className="w-4 h-4 mr-2" />
             Düzenle
           </Link>
         </Button>
 
-        {/* Diğer İşlemler Menüsü */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="icon">
+            <Button variant="ghost" size="icon" disabled={isLoading}>
               <MoreHorizontal className="w-4 h-4" />
             </Button>
           </DropdownMenuTrigger>
@@ -122,7 +144,7 @@ export function MyProductCard({ product }: MyProductCardProps) {
             <DropdownMenuSeparator />
 
             <DropdownMenuItem onClick={handleToggleStatus} className="cursor-pointer">
-              {product.isPublished ? (
+              {isPublished ? (
                  <><PauseCircle className="w-4 h-4 mr-2" /> Listeyi Duraklat</>
               ) : (
                  <><PlayCircle className="w-4 h-4 mr-2" /> Listeyi Yayınla</>
@@ -133,7 +155,8 @@ export function MyProductCard({ product }: MyProductCardProps) {
                 onClick={handleDelete} 
                 className="text-red-600 cursor-pointer focus:text-red-600 focus:bg-red-50"
             >
-              <Trash className="w-4 h-4 mr-2" /> Sil
+              {isLoading ? <Loader2 className="w-4 h-4 mr-2 animate-spin"/> : <Trash className="w-4 h-4 mr-2" />} 
+              Sil
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
