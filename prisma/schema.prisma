@@ -10,16 +10,16 @@ datasource db {
 }
 
 model User {
-  id           String    @id @unique 
+  id           String   @id @unique
   firstName    String
   lastName     String?
-  username     String?   @unique
+  username     String?  @unique
   languageCode String?
   lastActivity DateTime
-  
+
   // İlişkiler
-  products     Product[] // Kullanıcının sattığı ürünler
-  comments     Comment[] // Kullanıcının yaptığı yorumlar
+  products Product[] // Kullanıcının sattığı ürünler
+  comments Comment[] // Kullanıcının yaptığı yorumlar
 }
 
 model Product {
@@ -31,19 +31,19 @@ model Product {
   price       Float    @default(0.0)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
-  
+
   // Satıcı İlişkisi
-  userId      String
-  user        User     @relation(fields: [userId], references: [id])
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
 
   // Yorum İlişkisi
-  comments    Comment[] // Ürüne yapılan yorumlar
+  comments Comment[] // Ürüne yapılan yorumlar
 }
 
 model Comment {
   id        String   @id @default(uuid())
-  text      String   // Yorum metni
-  rating    Int?     // 1-5 arası puan (İsteğe bağlı, boş bırakılabilir)
+  text      String // Yorum metni
+  rating    Int? // 1-5 arası puan (İsteğe bağlı, boş bırakılabilir)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -52,6 +52,6 @@ model Comment {
   product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
 
   // Kim yaptı?
-  userId    String
-  user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 }

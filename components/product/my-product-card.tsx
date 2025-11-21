@@ -49,23 +49,23 @@ export function MyProductCard({ product }: MyProductCardProps) {
     try {
       const result = await toggleProductStatus(product.id, isPublished)
       if (result.success) {
-        toast.success(newStatus ? "Ürün yayına alındı" : "Ürün duraklatıldı")
+        toast.success(newStatus ? "Önüm satyşa çykaryldy" : "Önüm Satyşdan aýryldy")
         router.refresh()
       } else {
         // Hata olursa eski haline döndür
         setIsPublished(!newStatus)
-        toast.error("Durum güncellenemedi")
+        toast.error("Statusy täzeläp bolmady")
       }
     } catch (error) {
        setIsPublished(!newStatus)
-       toast.error("Bir hata oluştu")
+       toast.error("Statusy täzeläp bolmady")
     } finally {
        setIsLoading(false)
     }
   }
 
   const handleDelete = async () => {
-    const confirmDelete = confirm("Bu ürünü silmek istediğine emin misin?")
+    const confirmDelete = confirm("Çyndanam önümi pozmakçymy?")
     if (!confirmDelete) return
 
     setIsLoading(true)
@@ -76,13 +76,13 @@ export function MyProductCard({ product }: MyProductCardProps) {
       if (result.success) {
         // 2. Başarılıysa kartı hemen yok et
         setIsDeleted(true) 
-        toast.success("Ürün silindi")
+        toast.success("Önüm pozuldy")
         router.refresh() // Arka planda yine de veriyi tazele
       } else {
-        toast.error("Silinirken hata oluştu")
+        toast.error("Önümi pozmakda ýalňyşlyk ýüze çykdy")
       }
     } catch (error) {
-      toast.error("Bir hata oluştu")
+      toast.error("Ýalňyşlyk ýüze çykdy")
     } finally {
       setIsLoading(false)
     }
@@ -100,7 +100,7 @@ export function MyProductCard({ product }: MyProductCardProps) {
         <div className="absolute top-2 right-2">
             {/* State'teki isPublished değerini kullanıyoruz */}
             <Badge variant={isPublished ? "default" : "secondary"}>
-                {isPublished ? "Yayında" : "Duraklatıldı"}
+                {isPublished ? "Satyşda" : "Satyşda däl"}
             </Badge>
         </div>
       </div>
@@ -116,7 +116,7 @@ export function MyProductCard({ product }: MyProductCardProps) {
         <Button asChild variant="outline" className="flex-1" disabled={isLoading}>
           <Link href={`/dashboard/edit/${product.id}`}>
             <Edit className="w-4 h-4 mr-2" />
-            Düzenle
+            Düzediş
           </Link>
         </Button>
 
@@ -127,17 +127,17 @@ export function MyProductCard({ product }: MyProductCardProps) {
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            <DropdownMenuLabel>İşlemler</DropdownMenuLabel>
+            <DropdownMenuLabel>Amallar</DropdownMenuLabel>
             
             <DropdownMenuItem asChild>
               <Link href={`/product/${product.id}`} className="cursor-pointer">
-                <Eye className="w-4 h-4 mr-2" /> Görüntüle
+                <Eye className="w-4 h-4 mr-2" /> Synla
               </Link>
             </DropdownMenuItem>
 
             <DropdownMenuItem asChild>
               <Link href={`/dashboard/comments/${product.id}`} className="cursor-pointer">
-                <MessageSquare className="w-4 h-4 mr-2" /> Yorumlar
+                <MessageSquare className="w-4 h-4 mr-2" /> Teswirler
               </Link>
             </DropdownMenuItem>
 
@@ -145,9 +145,9 @@ export function MyProductCard({ product }: MyProductCardProps) {
 
             <DropdownMenuItem onClick={handleToggleStatus} className="cursor-pointer">
               {isPublished ? (
-                 <><PauseCircle className="w-4 h-4 mr-2" /> Listeyi Duraklat</>
+                 <><PauseCircle className="w-4 h-4 mr-2" /> Satyşdan aýyr</>
               ) : (
-                 <><PlayCircle className="w-4 h-4 mr-2" /> Listeyi Yayınla</>
+                 <><PlayCircle className="w-4 h-4 mr-2" /> Satyşa çykar</>
               )}
             </DropdownMenuItem>
 
@@ -156,7 +156,7 @@ export function MyProductCard({ product }: MyProductCardProps) {
                 className="text-red-600 cursor-pointer focus:text-red-600 focus:bg-red-50"
             >
               {isLoading ? <Loader2 className="w-4 h-4 mr-2 animate-spin"/> : <Trash className="w-4 h-4 mr-2" />} 
-              Sil
+              Poz
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
