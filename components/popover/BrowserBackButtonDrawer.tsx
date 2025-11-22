@@ -1,188 +1,182 @@
 // app/components/BrowserBackButtonDrawer.tsx
 "use client";
+
 import * as React from "react";
+import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import {
-   Drawer,
-   DrawerContent,
-   DrawerTrigger,
-   DrawerHeader,
-   DrawerTitle,
-   DrawerDescription,
-   DrawerFooter,
-   DrawerClose,
+  Drawer,
+  DrawerContent,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerDescription,
+  DrawerFooter,
+  DrawerClose,
 } from "@/components/ui/drawer";
 import { Button } from "@/components/ui/button";
 import { WebApp } from "@twa-dev/types";
-import { webApp as Webapp } from "@/lib/webApp"; // Varsayılan webApp yükleme fonksiyonunuz
+import { webApp as Webapp } from "@/lib/webApp";
 import { ProductCardProps } from "../product/ProductCard";
 import { ProductPhotosCarousel } from "../product/ProductPhotosCarousel";
-import { Badge } from "../ui/badge";
-import { ButtonGroup, ButtonGroupSeparator } from "../ui/button-group";
 
-// TWA'nın kullanılabilir olup olmadığını kontrol eden bir tip koruması (type guard)
+// TWA Kontrolü
 const isTwaAvailable = (
-   app: WebApp
+  app: WebApp
 ): app is WebApp & { BackButton: unknown; initData: string } => {
-   return (
-      !!app.initData &&
-      !!app.BackButton &&
-      typeof app.BackButton.show === "function"
-   );
+  return (
+    !!app.initData &&
+    !!app.BackButton &&
+    typeof app.BackButton.show === "function"
+  );
 };
 
 export function BrowserBackButtonDrawer({
-   children,
-   id,
-   name,
-   description,
-   price,
-   imageUrls,
+  children,
+  id,
+  name,
+  description,
+  price,
+  imageUrls,
 }: ProductCardProps & {
-   children: React.ReactNode;
+  children: React.ReactNode;
 }) {
-   const [webApp, setWebApp] = React.useState<WebApp>({} as WebApp);
-   const [isDrawerOpen, setDrawerState] = React.useState(false);
+  const [webApp, setWebApp] = React.useState<WebApp>({} as WebApp);
 
-   // TWA SDK'yı asenkron olarak yüklerken:
-   React.useEffect(() => {
-      const initWebApp = async () => {
-         if (typeof window !== "undefined") {
-            try {
-               const app = await Webapp();
-               setWebApp(app);
-            } catch (e: unknown) {
-               // TWA ortamı yoksa veya yükleme başarısız olursa (normal tarayıcı)
-               console.info(
-                  "TWA WebApp yüklenemedi. Normal tarayıcı modunda çalışılıyor.",
-                  e
-               );
-            }
-         }
-      };
-      initWebApp();
-   }, []);
+  // Next.js Router Hook'ları
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
 
-   // Drawer'ı kapatma fonksiyonu
-   const closeDrawer = React.useCallback(() => {
-      setDrawerState(false);
-   }, []);
+  // URL'de 'product-id' bizim ID'mize eşit mi?
+  const isOpen = searchParams.get("product-id") === id;
 
-   // Drawer'ı açma fonksiyonu
-   const openDrawer = (productId: string) => {
-      setDrawerState(true);
-      console.log(productId);
-
-      // Ürün ID'sini de URL'ye ekleyebiliriz, ancak şimdilik sadece açma parametresini kullanıyoruz.
-   };
-
-   // Drawer'ın açılma/kapanma durumu değiştiğinde (shadcn/ui tarafından tetiklenir)
-   const onOpenChange = (open: boolean) => {
-      console.log(open);
-
-      if (isDrawerOpen) {
-         closeDrawer();
-      } else {
-         openDrawer("");
+  // TWA Yükleme
+  React.useEffect(() => {
+    const initWebApp = async () => {
+      if (typeof window !== "undefined") {
+        try {
+          const app = await Webapp();
+          setWebApp(app);
+        } catch (e) {
+          console.error("TWA yüklenemedi", e);
+        }
       }
-   };
+    };
+    initWebApp();
+  }, []);
 
-   // 1. TWA BackButton Görünürlüğünü Yönetme
-   React.useEffect(() => {
-      if (isTwaAvailable(webApp)) {
-         if (isDrawerOpen) {
-            webApp.BackButton.show();
-         } else {
-            webApp.BackButton.hide();
-         }
-      }
-      return () => {
-         if (isTwaAvailable(webApp)) {
-            webApp.BackButton.hide();
-         }
-      };
-   }, [isDrawerOpen, webApp]);
+  // 1. AÇMA: URL'ye ID ekler
+  const openDrawer = () => {
+    const params = new URLSearchParams(searchParams.toString());
+    params.set("product-id", id);
+    router.push(`${pathname}?${params.toString()}`, { scroll: false });
+  };
 
-   // 2. TWA BackButton Olay Dinleyicisi
-   React.useEffect(() => {
-      if (isTwaAvailable(webApp)) {
-         webApp.BackButton.onClick(closeDrawer);
-      }
-      return () => {
-         if (isTwaAvailable(webApp)) {
-            webApp.BackButton.offClick(closeDrawer);
-         }
-      };
-   }, [webApp, closeDrawer]);
-   console.log(id);
+  // 2. KAPATMA: Router geçmişinde geri gider
+  // useCallback ile sarmaladık ama bağımlılıklarını azalttık.
+  const closeDrawer = React.useCallback(() => {
+    // Sadece eğer gerçekten açıksa geri git (History stack'i korumak için)
+    const currentId = searchParams.get("product-id");
+    if (currentId === id) {
+       router.back();
+    }
+  }, [id, searchParams, router]);
 
-   return (
-      <Drawer open={isDrawerOpen} onOpenChange={onOpenChange}>
-         <DrawerTrigger>{children}</DrawerTrigger>
 
-         {/* 1. ADIM: DrawerContent'e yükseklik ve flex düzeni verin */}
-         <DrawerContent className="!max-h-[90dvh]">
-            {/* 2. ADIM: Kaydırılabilir (Scrollable) alan oluşturun */}
-            {/* Bu div, footer hariç tüm içeriği kapsar ve kalan boşluğu doldurur */}
-            <div className="flex-1 overflow-y-auto px-4">
-               <div className="flex justify-center pt-4">
-                  <ProductPhotosCarousel imageUrls={imageUrls} />
-               </div>
+  // Drawer UI üzerinden (kaydırarak) kapatıldığında tetiklenir
+  const onOpenChange = (open: boolean) => {
+    if (!open) {
+      closeDrawer();
+    }
+  };
 
-               <DrawerHeader className="px-0">
-                  {" "}
-                  {/* İçerideki padding'i sıfırlayabilirsiniz */}
-                  <DrawerTitle>{name}</DrawerTitle>
-                  <DrawerDescription>{description}</DrawerDescription>
-               </DrawerHeader>
+  // --- DÜZELTİLEN TWA LOGIC ---
+  React.useEffect(() => {
+    if (!isTwaAvailable(webApp)) return;
+
+    // Handler'ı useEffect içinde tanımlıyoruz.
+    // Böylece dışarıdaki 'closeDrawer' karmaşasından etkilenmiyor.
+    // Router.back() zaten URL'yi değiştireceği için isOpen false olacak ve drawer kapanacak.
+    const handleTwaBack = () => {
+      router.back();
+    };
+
+    if (isOpen) {
+      webApp.BackButton.show();
+      webApp.BackButton.onClick(handleTwaBack);
+    } else {
+      webApp.BackButton.hide();
+      webApp.BackButton.offClick(handleTwaBack);
+    }
+
+    return () => {
+      // Temizlik: Her durumda listener'ı kaldır
+      webApp.BackButton.offClick(handleTwaBack);
+    };
+  }, [isOpen, webApp, router]); // 'closeDrawer' bağımlılığı kaldırıldı!
+
+  return (
+    <Drawer open={isOpen} onOpenChange={onOpenChange}>
+      <div onClick={openDrawer} className="cursor-pointer">
+        {children}
+      </div>
+
+      <DrawerContent className="!max-h-[90dvh] flex flex-col focus:outline-none">
+        <div className="flex-1 overflow-y-auto px-4">
+          <div className="flex justify-center pt-4">
+            <ProductPhotosCarousel imageUrls={imageUrls} />
+          </div>
+
+          <DrawerHeader className="px-0 mt-4 text-left">
+            <DrawerTitle className="text-2xl font-bold">
+              {name}
+            </DrawerTitle>
+            <div className="text-xl font-semibold text-primary mt-2">
+              {price}
             </div>
+            <DrawerDescription className="mt-2 text-base leading-relaxed">
+              {description}
+            </DrawerDescription>
+          </DrawerHeader>
+        </div>
 
-            {/* 3. ADIM: Footer her zaman en altta sabit kalır */}
-            <DrawerFooter className="pt-2 bg-card rounded-t-4xl border-t">
-               {/* Dış Kapsayıcı:
-    - grid-cols-2: İkiye böl
-    - gap-px: Butonlar arasında 1px boşluk bırak (çizgi için)
-    - bg-border: O boşluklardan görünecek çizgi rengi (Shadcn border rengi)
-    - rounded-2xl: Köşeleri daha fazla yuvarla
-    - overflow-hidden: Butonlar köşelerden taşmasın
-    - border: En dışa çerçeve çiz
-*/}
-               <div className="grid grid-cols-2 gap-1 rounded-2xl overflow-hidden">
-                  {/* 1. Buton (Sol Üst) */}
-                  <Button
-                     variant="secondary"
-                     className="w-full rounded-sm shadow-none border-none bg-popover hover:bg-secondary text-foreground"
-                  >
-                     Satyn al
-                  </Button>
-
-                  {/* 2. Buton (Sağ Üst) */}
-                  <Button
-                     variant="secondary"
-                     className="w-full rounded-sm shadow-none border-none bg-popover hover:bg-secondary text-foreground"
-                  >
-                     Teswirler
-                  </Button>
-
-                  {/* 3. Buton (Sol Alt) */}
-                  <Button
-                     variant="secondary"
-                     className="w-full rounded-sm shadow-none border-none bg-popover hover:bg-secondary text-foreground"
-                  >
-                     Paýlaş
-                  </Button>
-
-                  {/* 4. Buton (Sağ Alt - Kapat) */}
-                  <DrawerClose asChild>
-                     <Button
-                        variant="secondary"
-                        className="w-full rounded-sm shadow-none border-none bg-popover hover:bg-destructive hover:text-destructive-foreground text-foreground"
-                     >
-                        Ýap
-                     </Button>
-                  </DrawerClose>
-               </div>
-            </DrawerFooter>
-         </DrawerContent>
-      </Drawer>
-   );
+        <DrawerFooter className="pt-2 bg-card rounded-t-4xl border-t">
+          <div className="grid grid-cols-2 gap-1 rounded-2xl overflow-hidden">
+            <Button
+              variant="secondary"
+              className="w-full rounded-sm shadow-none border-none bg-popover hover:bg-secondary text-foreground"
+            >
+              Satyn al
+            </Button>
+            <Button
+              variant="secondary"
+              className="w-full rounded-sm shadow-none border-none bg-popover hover:bg-secondary text-foreground"
+            >
+              Teswirler
+            </Button>
+            <Button
+              variant="secondary"
+              className="w-full rounded-sm shadow-none border-none bg-popover hover:bg-secondary text-foreground"
+            >
+              Paýlaş
+            </Button>
+            <DrawerClose asChild>
+              <Button
+                variant="secondary"
+                // DrawerClose zaten context içinden close fonksiyonunu çağırır,
+                // ama bizim URL mantığımızla çakışmaması için onClick ekleyebiliriz
+                onClick={(e) => {
+                   // DrawerClose'un varsayılan davranışını engellememize gerek yok
+                   // ama router.back yapmasını istiyorsak burayı manuel yönetebiliriz.
+                   // Şimdilik DrawerClose kalsın, onOpenChange(false) tetiklenecek.
+                }}
+                className="w-full rounded-sm shadow-none border-none bg-popover hover:bg-destructive hover:text-destructive-foreground text-foreground"
+              >
+                Ýap
+              </Button>
+            </DrawerClose>
+          </div>
+        </DrawerFooter>
+      </DrawerContent>
+    </Drawer>
+  );
 }

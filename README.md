@@ -29,5 +29,5 @@ Follow the steps below to run the project on your local machine:
 
 1. **Clone the repository:**
 ```bash
-git clone [https://github.com/YOUR_USERNAME/pubg-app.git](https://github.com/PalwanSaryyew/pubg-app.git)
+git clone [https://github.com/PalwanSaryyew/pubg-app.git](https://github.com/PalwanSaryyew/pubg-app.git)
 cd pubg-app
