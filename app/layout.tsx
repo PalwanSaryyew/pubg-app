@@ -7,6 +7,8 @@ import Header from "@/components/layout/header";
 import Footer from "@/components/layout/footer/footer";
 import { WebAppProvider } from "@/context/WebAppContext";
 import { Toaster } from "@/components/ui/sonner";
+import { Suspense } from "react";
+import { StartParamHandler } from "@/components/tools/StartParamHandler";
 
 const geistSans = Geist({
    variable: "--font-geist-sans",
@@ -41,6 +43,9 @@ export default function RootLayout({
             >
                <TelegramThemeProvider>
                   <WebAppProvider>
+                     <Suspense fallback={null}>
+                        <StartParamHandler />
+                     </Suspense>
                      <Header />
                      <main className="py-26">{children}</main>
 

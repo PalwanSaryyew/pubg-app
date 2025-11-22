@@ -241,7 +241,7 @@ export function BrowserBackButtonDrawer({
                      disabled={(isLoading && !isOpen) || isSharing}
                      className="w-full rounded-sm shadow-none border-none bg-popover hover:bg-secondary text-foreground"
                   >
-                     {isSharing ? "Hazırlanıyor..." : "Paýlaş"}
+                     {isSharing ? "Garaşyň..." : "Paýlaş"}
                   </Button>
 
                   <DrawerClose asChild>
