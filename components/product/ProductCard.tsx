@@ -53,7 +53,7 @@ export default function ProductCard({
                </CardDescription>
             </CardContent>
             <CardFooter className="text-lg px-4 md:text-2xl font-extrabold text-primary">
-               {price}
+               {price} TMT
             </CardFooter>
          </Card>
       </BrowserBackButtonDrawer>

@@ -109,7 +109,7 @@ export function MyProductCard({ product }: MyProductCardProps) {
         <div className="flex justify-between items-start">
             <h3 className="font-semibold text-lg line-clamp-1">{product.title}</h3>
         </div>
-        <p className="text-sm text-muted-foreground">{product.price} TL</p>
+        <p className="text-sm text-muted-foreground">{product.price} TMT</p>
       </CardHeader>
 
       <CardFooter className="flex gap-2 pt-4">
