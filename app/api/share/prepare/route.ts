@@ -30,8 +30,8 @@ export async function POST(request: Request) {
     if (finalImageUrl && finalImageUrl.startsWith("/")) {
       // request.url o anki API çağrısının tam adresidir (örn: https://site.com/api/share/prepare)
       // new URL(request.url).origin bize sadece 'https://site.com' kısmını verir.
-      const origin = new URL(request.url).origin;
-      finalImageUrl = `${origin}${finalImageUrl}`;
+      const origin = process.env.NEXT_PUBLIC_API_URL;
+      finalImageUrl = `${origin}/${finalImageUrl}`;
       console.log("Tamamlanmış URL:", finalImageUrl);
     }
 
