@@ -20,11 +20,22 @@ export async function POST(request: Request) {
     const startAppParam = `product-${productId}`;
     const deepLinkUrl = `https://t.me/${BOT_USERNAME}/${APP_NAME}?startapp=${startAppParam}`;
 
-    // --- 2. URL DÜZELTME ---
+    // --- 2. URL DÜZELTME VE TAMAMLAMA ---
     let finalImageUrl = imageUrl;
-    console.log(finalImageUrl);
-    
 
+    // LOG: İlk gelen veriyi görelim
+    console.log("Gelen Ham URL:", finalImageUrl);
+
+    // A) Eğer URL '/' ile başlıyorsa (Relative Path), başına domaini ekle
+    if (finalImageUrl && finalImageUrl.startsWith("/")) {
+      // request.url o anki API çağrısının tam adresidir (örn: https://site.com/api/share/prepare)
+      // new URL(request.url).origin bize sadece 'https://site.com' kısmını verir.
+      const origin = new URL(request.url).origin;
+      finalImageUrl = `${origin}${finalImageUrl}`;
+      console.log("Tamamlanmış URL:", finalImageUrl);
+    }
+
+    // B) Telegram Uyumluluk Kontrolü (Localhost ve HTTP engelleme)
     if (
       !finalImageUrl ||
       !finalImageUrl.startsWith("http") ||
@@ -32,42 +43,34 @@ export async function POST(request: Request) {
       finalImageUrl.includes("127.0.0.1")
     ) {
       console.log(
-        "⚠️ Geçersiz resim URL'si, placeholder kullanılıyor."
+        "⚠️ Geçersiz veya Yerel Resim URL'si, placeholder kullanılıyor."
       );
+      // Localhost'ta çalışırken Telegram resimleri göremez, bu yüzden placeholder şarttır.
+      // Ancak deploy ettiğinizde yukarıdaki (A) adımı sayesinde gerçek resim gidecektir.
       finalImageUrl =
         "https://images.unsplash.com/photo-1542751371-adc38448a05e?q=80&w=2070&auto=format&fit=crop";
     }
     // ------------------------
 
-    // --- 3. 🔥 CAPTION UZUNLUK KONTROLÜ (YENİ KISIM) ---
-    // Telegram Caption Limiti: 1024 karakter (HTML etiketleri dahil)
-    
-    // Başlık, Fiyat ve HTML etiketleri için ortalama bir pay ayıralım (Örn: 200 karakter)
-    // Bu sayede description için güvenli bir alan kalır.
-    const MAX_DESCRIPTION_LENGTH = 800; 
-
+    // --- 3. CAPTION KISALTMA ---
+    const MAX_DESCRIPTION_LENGTH = 800;
     let safeDescription = description || "";
 
-    // Eğer açıklama çok uzunsa kes ve '...' ekle
     if (safeDescription.length > MAX_DESCRIPTION_LENGTH) {
-        safeDescription = safeDescription.substring(0, MAX_DESCRIPTION_LENGTH) + "...";
+      safeDescription =
+        safeDescription.substring(0, MAX_DESCRIPTION_LENGTH) + "...";
     }
-    // ---------------------------------------------------
+    // ---------------------------
 
     const telegramData = {
       user_id: userId,
       result: {
         type: "photo",
-        id: productId, 
-        photo_url: finalImageUrl, 
-        thumb_url: finalImageUrl, 
-
-        // 🔥 DÜZELTİLMİŞ CAPTION
-        // 'description' yerine 'safeDescription' kullanıyoruz
+        id: productId,
+        photo_url: finalImageUrl, // Artık tam URL
+        thumb_url: finalImageUrl,
         caption: `<b>${title}</b>\n<u>${price} TMT</u>\n<blockquote expandable>${safeDescription}</blockquote>`,
-        
-        parse_mode: "HTML", 
-
+        parse_mode: "HTML",
         reply_markup: {
           inline_keyboard: [
             [
