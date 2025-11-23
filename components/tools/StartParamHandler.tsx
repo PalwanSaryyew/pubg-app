@@ -1,52 +1,52 @@
-// app/components/StartParamHandler.tsx
+// app/components/tools/StartParamHandler.tsx
 "use client";
 
-import { useEffect, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
-import { webApp } from "@/lib/webApp"; // WebApp importunuz
+import { useEffect, useRef } from "react";
+import { useRouter } from "next/navigation";
+import { webApp } from "@/lib/webApp";
 import { WebApp as WebAppType } from "@twa-dev/types";
 
 export function StartParamHandler() {
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const [isProcessed, setIsProcessed] = useState(false);
+  
+  // Bu ref, bileşen render olsa bile sıfırlanmaz.
+  // Uygulama yenilenmediği sürece hafızada tutulur.
+  const isExecuted = useRef(false);
 
   useEffect(() => {
     const handleStartParam = async () => {
-      // Eğer zaten işlendiyse veya tarayıcıda değilsek dur
-      if (isProcessed || typeof window === "undefined") return;
+      // 1. Eğer daha önce çalıştıysa DUR.
+      // React Strict Mode yüzünden 2 kere çalışsa bile bu korur.
+      if (isExecuted.current || typeof window === "undefined") return;
 
       try {
-        // WebApp'i yükle
         const app = (await webApp()) as WebAppType;
-
-        // start_param var mı kontrol et (Örn: "product-123")
         const startParam = app.initDataUnsafe?.start_param;
 
+        // 2. start_param var mı?
         if (startParam && startParam.startsWith("product-")) {
-          // "product-" kısmını atıp sadece ID'yi alalım
           const productId = startParam.replace("product-", "");
 
-          // Şu anki URL'de zaten bu ürün açık mı?
-          const currentProduct = searchParams.get("product-id");
+          console.log("🚀 Deep Link Algılandı, Yönlendiriliyor:", productId);
+          
+          // 3. İŞLEMİ İŞARETLE (Çok Önemli)
+          // Bunu router işleminden HEMEN ÖNCE yapıyoruz ki döngüye girmesin.
+          isExecuted.current = true;
 
-          if (currentProduct !== productId) {
-            console.log("🚀 Deep Link Algılandı! Ürün açılıyor:", productId);
-            
-            // URL'yi güncelle -> Drawer otomatik açılacak
-            // replace kullanıyoruz ki 'Geri' tuşu geçmişi bozmasın
-            router.replace(`/?product-id=${productId}`, { scroll: false });
-          }
+          // 4. push kullanıyoruz ki "Geri" tuşu geçmişte bir yer bulabilsin.
+          // replace yaparsak geri tuşu uygulamayı kapatabilir.
+          router.push(`/?product-id=${productId}`, { scroll: false });
         }
       } catch (e) {
         console.error("Start param hatası:", e);
-      } finally {
-        setIsProcessed(true); // Bir kere çalıştıktan sonra işaretle
       }
     };
 
     handleStartParam();
-  }, [router, searchParams, isProcessed]);
 
-  return null; // Bu bileşen görünmez, sadece mantık çalıştırır
+    // DİKKAT: Bağımlılık dizisi (dependency array) BOŞ olmalı [].
+    // Böylece URL (searchParams) değişse bile bu kod tekrar çalışmaz.
+  }, [router]); 
+
+  return null;
 }
