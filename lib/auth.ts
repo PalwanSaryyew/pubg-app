@@ -15,7 +15,7 @@ export interface TelegramUser {
 }
 
 // Next.js projenizin .env dosyasında BOT_TOKEN tanımlı olmalıdır.
-const BOT_TOKEN = env.BOT_TOKEN; 
+const BOT_TOKEN = env.TELEGRAM_BOT_TOKEN; 
 
 /**
  * Telegram Web App initData'yı SHA256 ve HMAC kullanarak doğrular.
