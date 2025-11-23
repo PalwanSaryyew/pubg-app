@@ -22,6 +22,8 @@ export async function POST(request: Request) {
 
     // --- 2. URL DÜZELTME ---
     let finalImageUrl = imageUrl;
+    console.log(finalImageUrl);
+    
 
     if (
       !finalImageUrl ||
