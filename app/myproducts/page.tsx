@@ -2,17 +2,9 @@
 "use client";
 import { useWebApp } from "@/context/WebAppContext";
 import { useEffect, useState } from "react";
-import {
-   Card,
-   CardContent,
-   CardDescription,
-   CardFooter,
-   CardHeader,
-   CardTitle,
-} from "@/components/ui/card";
-import { AspectRatio } from "@/components/ui/aspect-ratio";
+
 import { Loader2, AlertTriangle } from "lucide-react";
-import Image from "next/image";
+
 import { MyProductCard } from "@/components/product/my-product-card";
 
 // Ürün tipi (Prisma modelinize göre ayarlayın)
@@ -112,36 +104,3 @@ export default function MyProductsPage() {
       </div>
    );
 }
-
-// Küçük bir yardımcı bileşen (Card)
-const ProductCard = ({ product }: { product: Product }) => {
-   // İlk resmi veya varsayılan resmi kullan
-   const imageUrl = product.images[0] || "/placeholder.png";
-
-   return (
-      <Card className="hover:shadow-lg transition-shadow">
-         <CardContent className="p-0">
-            <AspectRatio
-               ratio={16 / 9}
-               className="rounded-t-lg overflow-hidden bg-gray-100"
-            >
-               <Image
-                  src={imageUrl}
-                  alt={product.title}
-                  className="w-full h-full object-cover"
-               />
-            </AspectRatio>
-         </CardContent>
-         <CardHeader>
-            <CardTitle className="truncate">{product.title}</CardTitle>
-            <CardDescription className="line-clamp-2">
-               {product.description}
-            </CardDescription>
-         </CardHeader>
-         <CardFooter className="text-sm text-gray-500">
-            Goşulan wagty:{" "}
-            {new Date(product.createdAt).toLocaleDateString("tr-TR")}
-         </CardFooter>
-      </Card>
-   );
-};

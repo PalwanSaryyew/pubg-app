@@ -47,6 +47,7 @@ export default function RootLayout({
                         <StartParamHandler />
                      </Suspense>
                      <Header />
+                     <div className=""></div>
                      <main className="py-26">{children}</main>
 
                      <Toaster

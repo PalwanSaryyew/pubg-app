@@ -1,8 +1,14 @@
 // app/components/BrowserBackButtonDrawer.tsx
 "use client";
 
-import * as React from "react";
-import { useRouter, usePathname, useSearchParams } from "next/navigation";
+import { CommentsDrawer } from "./CommentsDrawer";
+import { ProductPhotosCarousel } from "../product/ProductPhotosCarousel";
+import { ProductCardProps } from "../product/ProductCard";
+import { webApp as Webapp } from "@/lib/webApp";
+import { WebApp } from "@twa-dev/types";
+import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Button } from "@/components/ui/button";
 import {
    Drawer,
    DrawerContent,
@@ -12,13 +18,8 @@ import {
    DrawerFooter,
    DrawerClose,
 } from "@/components/ui/drawer";
-import { Button } from "@/components/ui/button";
-import { Skeleton } from "@/components/ui/skeleton";
-import { Badge } from "@/components/ui/badge";
-import { WebApp } from "@twa-dev/types";
-import { webApp as Webapp } from "@/lib/webApp";
-import { ProductCardProps } from "../product/ProductCard";
-import { ProductPhotosCarousel } from "../product/ProductPhotosCarousel";
+import { useRouter, usePathname, useSearchParams } from "next/navigation";
+import * as React from "react";
 
 // TWA Tip Tanımlamaları (shareMessage özelliğini ekliyoruz)
 const isTwaAvailable = (
@@ -45,9 +46,10 @@ export function BrowserBackButtonDrawer({
 }: ProductCardProps & {
    children: React.ReactNode;
 }) {
-   const [webApp, setWebApp] = React.useState<WebApp>({} as WebApp);
+   const [webApp, setWebApp] = React.useState<WebApp | undefined>();
    const [isLoading, setIsLoading] = React.useState(false);
-   const [isSharing, setIsSharing] = React.useState(false); // Paylaşım butonu loading durumu
+   const [isSharing, setIsSharing] = React.useState(false); 
+   const [isCommentsOpen, setIsCommentsOpen] = React.useState(false); 
 
    const router = useRouter();
    const pathname = usePathname();
@@ -97,14 +99,12 @@ export function BrowserBackButtonDrawer({
       }
    };
 
-   // --- GÜNCELLENMİŞ PAYLAŞIM FONKSİYONU ---
    const handleSmartShare = async () => {
-      if (!isTwaAvailable(webApp)) {
+      if (!webApp || !isTwaAvailable(webApp)) {
          alert("Bu özellik sadece Telegram içinde çalışır.");
          return;
       }
 
-      // Kullanıcı ID'sini TWA verisinden alıyoruz
       const userId = webApp.initDataUnsafe?.user?.id;
 
       if (!userId) {
@@ -124,7 +124,7 @@ export function BrowserBackButtonDrawer({
                price: price,
                description: description,
                imageUrl: imageUrls[0],
-               userId: userId, // 👈 BURADA BACKEND'E ID GÖNDERİYORUZ
+               userId: userId,
             }),
          });
 
@@ -149,10 +149,9 @@ export function BrowserBackButtonDrawer({
          setIsSharing(false);
       }
    };
-   // -------------------------------------------------------------
 
    React.useEffect(() => {
-      if (!isTwaAvailable(webApp)) return;
+      if (!webApp || !isTwaAvailable(webApp)) return;
       const handleTwaBack = () => router.back();
 
       if (isOpen) {
@@ -164,11 +163,12 @@ export function BrowserBackButtonDrawer({
       }
 
       return () => {
-         webApp.BackButton.offClick(handleTwaBack);
+         if(webApp && webApp.BackButton) {
+            webApp.BackButton.offClick(handleTwaBack);
+         }
       };
    }, [isOpen, webApp, router]);
 
-   // --- İÇERİK ---
    const DrawerLoadingContent = () => (
       <div className="flex-1 overflow-y-auto px-4">
          <div className="flex justify-center pt-4">
@@ -204,57 +204,67 @@ export function BrowserBackButtonDrawer({
    );
 
    return (
-      <Drawer open={isOpen || isLoading} onOpenChange={onOpenChange}>
-         <div onClick={openDrawer} className="cursor-pointer">
-            {children}
-         </div>
+      <>
+         <Drawer open={isOpen || isLoading} onOpenChange={onOpenChange}>
+            <div onClick={openDrawer} className="cursor-pointer">
+               {children}
+            </div>
 
-         <DrawerContent className="!max-h-[90dvh] flex flex-col focus:outline-none">
-            {isLoading && !isOpen ? (
-               <DrawerLoadingContent />
-            ) : (
-               <DrawerRealContent />
-            )}
+            <DrawerContent className="!max-h-[90dvh] flex flex-col focus:outline-none">
+               {isLoading && !isOpen ? (
+                  <DrawerLoadingContent />
+               ) : (
+                  <DrawerRealContent />
+               )}
 
-            <DrawerFooter className="pt-2 bg-card rounded-t-4xl border-t">
-               <div className="grid grid-cols-2 gap-1 rounded-2xl overflow-hidden">
-                  <Button
-                     variant="secondary"
-                     disabled={isLoading && !isOpen}
-                     className="w-full rounded-sm shadow-none border-none bg-popover hover:bg-secondary text-foreground"
-                  >
-                     Satyn al
-                  </Button>
-
-                  <Button
-                     variant="secondary"
-                     disabled={isLoading && !isOpen}
-                     className="w-full rounded-sm shadow-none border-none bg-popover hover:bg-secondary text-foreground"
-                  >
-                     Teswirler
-                  </Button>
-
-                  {/* PAYLAŞ BUTONU */}
-                  <Button
-                     variant="secondary"
-                     onClick={handleSmartShare} // Yeni fonksiyon
-                     disabled={(isLoading && !isOpen) || isSharing}
-                     className="w-full rounded-sm shadow-none border-none bg-popover hover:bg-secondary text-foreground"
-                  >
-                     {isSharing ? "Garaşyň..." : "Paýlaş"}
-                  </Button>
-
-                  <DrawerClose asChild>
+               <DrawerFooter className="pt-2 bg-card rounded-t-4xl border-t">
+                  <div className="grid grid-cols-2 gap-1 rounded-2xl overflow-hidden">
                      <Button
                         variant="secondary"
-                        className="w-full rounded-sm shadow-none border-none bg-popover hover:bg-destructive hover:text-destructive-foreground text-foreground"
+                        disabled={isLoading && !isOpen}
+                        className="w-full rounded-sm shadow-none border-none bg-popover hover:bg-secondary text-foreground"
                      >
-                        Ýap
+                        Satyn al
                      </Button>
-                  </DrawerClose>
-               </div>
-            </DrawerFooter>
-         </DrawerContent>
-      </Drawer>
+
+                     <Button
+                        variant="secondary"
+                        onClick={() => setIsCommentsOpen(true)}
+                        disabled={isLoading && !isOpen}
+                        className="w-full rounded-sm shadow-none border-none bg-popover hover:bg-secondary text-foreground"
+                     >
+                        Teswirler
+                     </Button>
+
+                     <Button
+                        variant="secondary"
+                        onClick={handleSmartShare}
+                        disabled={(isLoading && !isOpen) || isSharing}
+                        className="w-full rounded-sm shadow-none border-none bg-popover hover:bg-secondary text-foreground"
+                     >
+                        {isSharing ? "Garaşyň..." : "Paýlaş"}
+                     </Button>
+
+                     <DrawerClose asChild>
+                        <Button
+                           variant="secondary"
+                           className="w-full rounded-sm shadow-none border-none bg-popover hover:bg-destructive hover:text-destructive-foreground text-foreground"
+                        >
+                           Ýap
+                        </Button>
+                     </DrawerClose>
+                  </div>
+               </DrawerFooter>
+            </DrawerContent>
+         </Drawer>
+
+         <CommentsDrawer
+            productId={id}
+            productName={name}
+            isOpen={isCommentsOpen}
+            onOpenChange={setIsCommentsOpen}
+            webApp={webApp}
+         />
+      </>
    );
 }

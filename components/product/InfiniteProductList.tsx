@@ -4,96 +4,104 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import ProductCard from "./ProductCard";
 import { Product } from "@/lib/generated/prisma/client";
+import { INITIAL_LIMIT } from "@/lib/settings";
+import { toast } from "sonner";
 
-// API'nin beklediği tiplerden biri.
+// Types expected by the API
 interface ProductData {
-    products: Product[];
-}   
-
-// Sunucudan gelen ilk verileri ve API URL'sini alır.
-interface InfiniteProductListProps {
-    initialProducts: Product[];
-    apiUrl: string;
+   products: Product[];
 }
 
-const PRODUCTS_PER_PAGE = 20; // API rotasıyla eşleşmelidir (varsayılan 'limit').
+// Receives initial data and API URL from the server component.
+interface InfiniteProductListProps {
+   initialProducts: Product[];
+   apiUrl: string;
+}
 
-export default function InfiniteProductList({ initialProducts, apiUrl }: InfiniteProductListProps) {
-    const [products, setProducts] = useState<Product[]>(initialProducts);
-    const [page, setPage] = useState(2); // Başlangıçta 1. sayfa yüklendi, sonraki sayfa 2
-    const [hasMore, setHasMore] = useState(initialProducts.length === PRODUCTS_PER_PAGE); // Daha fazla veri olup olmadığı
-    const [isLoading, setIsLoading] = useState(false);
-    
-    // Sonsuz kaydırma için tetikleyici görevi görecek div elementi.
-    const loaderRef = useRef<HTMLDivElement>(null); 
+const PRODUCTS_PER_PAGE = INITIAL_LIMIT; // Must match API route (default 'limit').
 
-    // API'den bir sonraki sayfayı çeken asenkron fonksiyon
-    const loadMoreProducts = useCallback(async () => {
-        if (!hasMore || isLoading) return;
+export default function InfiniteProductList({
+   initialProducts,
+   apiUrl,
+}: InfiniteProductListProps) {
+   const [products, setProducts] = useState<Product[]>(initialProducts);
+   const [page, setPage] = useState(2); // Initially page is 1 loaded, next page is 2
+   const [hasMore, setHasMore] = useState(
+      initialProducts.length === PRODUCTS_PER_PAGE
+   ); // Whether more data is available
+   const [isLoading, setIsLoading] = useState(false);
 
-        setIsLoading(true);
-        try {
-            // API rotasına limit ve sayfa parametrelerini gönderiyoruz.
-            const response = await fetch(`${apiUrl}/api/getall?limit=${PRODUCTS_PER_PAGE}&page=${page}`);
+   // Div element to act as trigger for infinite scrolling.
+   const loaderRef = useRef<HTMLDivElement>(null);
 
-            if (!response.ok) {
-                console.error("Daha fazla ürün yüklenirken hata oluştu.");
-                setIsLoading(false);
-                return;
-            }
+   // Asynchronous function that pulls the next page from the API
+   const loadMoreProducts = useCallback(async () => {
+      if (!hasMore || isLoading) return;
 
-            const data: ProductData = await response.json();
-            
-            setProducts((prevProducts) => [...prevProducts, ...data.products]);
-            setPage((prevPage) => prevPage + 1);
+      setIsLoading(true);
+      try {
+         // We send limit and page parameters to the API route.
+         const response = await fetch(
+            `${apiUrl}/api/getall?limit=${PRODUCTS_PER_PAGE}&page=${page}`
+         );
 
-            // Gelen ürün sayısı istenen limitten az ise, daha fazla veri yoktur.
-            if (data.products.length < PRODUCTS_PER_PAGE) {
-                setHasMore(false);
-            }
-        } catch (error) {
-            console.error("Veri çekme hatası:", error);
-            // Burada kullanıcıya bir hata mesajı gösterebilirsiniz.
-        } finally {
+         if (!response.ok) {
+            toast.error("Önümleri ýüklemekde ýalňyşlyk ýüze çykdy. (1)");
             setIsLoading(false);
-        }
-    }, [apiUrl, page, hasMore, isLoading]); // Bağımlılıkları ekliyoruz.
+            return;
+         }
 
-    // Intersection Observer'ı kur
-    useEffect(() => {
-        const observer = new IntersectionObserver(
-            (entries) => {
-                // Eğer tetikleyici alan görünüyorsa ve daha fazla veri varsa, loadMoreProducts'ı çağır
-                if (entries[0].isIntersecting && hasMore && !isLoading) {
-                    loadMoreProducts();
-                }
-            },
-            {
-                root: null, // viewport'ı kök olarak kullan
-                rootMargin: "0px",
-                threshold: 1.0,
+         const data: ProductData = await response.json();
+
+         setProducts((prevProducts) => [...prevProducts, ...data.products]);
+         setPage((prevPage) => prevPage + 1);
+
+         // If the number of incoming products is less than the requested limit, there is no more data.
+         if (data.products.length < PRODUCTS_PER_PAGE) {
+            setHasMore(false);
+         }
+      } catch (error) {
+         console.error("Data extraction error:", error);
+         toast.error("Önümleri ýüklemekde ýalňyşlyk ýüze çykdy. (2)");
+      } finally {
+         setIsLoading(false);
+      }
+   }, [apiUrl, page, hasMore, isLoading]); // We add dependencies.
+
+   // Set up Intersection Observer
+   useEffect(() => {
+      const observer = new IntersectionObserver(
+         (entries) => {
+            // If the trigger field is visible and there is more data, call loadMoreProducts
+            if (entries[0].isIntersecting && hasMore && !isLoading) {
+               loadMoreProducts();
             }
-        );
+         },
+         {
+            root: null, // use viewport as root
+            rootMargin: "0px",
+            threshold: 1.0,
+         }
+      );
 
-        const currentLoader = loaderRef.current;
+      const currentLoader = loaderRef.current;
 
-        if (currentLoader) {
-            observer.observe(currentLoader);
-        }
+      if (currentLoader) {
+         observer.observe(currentLoader);
+      }
 
-        // Bileşen unmount edildiğinde observer'ı temizle
-        return () => {
-            if (currentLoader) {
-                observer.unobserve(currentLoader);
-            }
-        };
-    }, [loadMoreProducts, hasMore, isLoading]);
+      // Clear observer when component is unmounted
+      return () => {
+         if (currentLoader) {
+            observer.unobserve(currentLoader);
+         }
+      };
+   }, [loadMoreProducts, hasMore, isLoading]);
 
-
-    return (
-        <>
-            <div
-                className="
+   return (
+      <>
+         <div
+            className="
                     grid gap-2 px-4 
                     grid-cols-2              /* Varsayılan: İki Sütun */
                     sm:grid-cols-3           /* sm (640px) ve üstü: Üç Sütun */
@@ -101,43 +109,45 @@ export default function InfiniteProductList({ initialProducts, apiUrl }: Infinit
                     lg:grid-cols-5           /* lg (1024px) ve üstü: Beş Sütun */
                     xl:grid-cols-6           /* xl (1280px) ve üstü: Altı Sütun */
                 "
-            >
-                {/* Yüklenen tüm ürünleri listele */}
-                {products.map((product) => (
-                    <ProductCard
-                        key={product.id}
-                        id={product.id}
-                        name={product.title}
-                        description={product.description}
-                        price={product.price}
-                        imageUrls={product.images}
-                    />
-                ))}
-            </div>
+         >
+            {/* List all uploaded products */}
+            {products.map((product) => (
+               <ProductCard
+                  key={product.id}
+                  id={product.id}
+                  name={product.title}
+                  description={product.description}
+                  price={product.price}
+                  imageUrls={product.images}
+               />
+            ))}
+         </div>
 
-            {/* Tetikleyici ve Yüklenme Durumu Alanı */}
-            {hasMore && (
-                <div ref={loaderRef} className="col-span-full py-6 text-center">
-                    {isLoading ? (
-                        <p className="text-blue-500 font-semibold">Bildirişler yüklenyär...</p>
-                    ) : (
-                        // LoaderRef bu div'e bağlandı. Kullanıcı bu alanı gördüğünde yeni veri çekilecek.
-                        <p className="text-gray-400">Dowamy ýüklenyär.</p>
-                    )}
-                </div>
-            )}
-            
-            {!hasMore && products.length > 0 && (
-                <div className="col-span-full py-10 text-center text-gray-500">
-                    Gutardy!
-                </div>
-            )}
-            
-            {products.length === 0 && (
-                <div className="col-span-full text-center py-10 text-xl text-gray-500">
-                    Bildiriş ýok.
-                </div>
-            )}
-        </>
-    );
+         {/* Trigger and Loading Status Area */}
+         {hasMore && (
+            <div ref={loaderRef} className="col-span-full py-6 text-center">
+               {isLoading ? (
+                  <p className="text-blue-500 font-semibold">
+                     Bildirişler yüklenyär...
+                  </p>
+               ) : (
+                  // LoaderRef is attached to this div. When the user sees this field, new data will be pulled..
+                  <p className="text-gray-400">Dowamy ýüklenyär.</p>
+               )}
+            </div>
+         )}
+
+         {!hasMore && products.length > 0 && (
+            <div className="col-span-full py-10 text-center text-gray-500">
+               Gutardy!
+            </div>
+         )}
+
+         {products.length === 0 && (
+            <div className="col-span-full text-center py-10 text-xl text-gray-500">
+               Bildiriş ýok.
+            </div>
+         )}
+      </>
+   );
 }

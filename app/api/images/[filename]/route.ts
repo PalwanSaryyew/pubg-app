@@ -30,6 +30,8 @@ export async function GET(
       },
     });
   } catch (error) {
+    console.error(error);
+    
     return new NextResponse('Image not found', { status: 404 });
   }
 }

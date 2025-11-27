@@ -1,12 +1,13 @@
 // app/api/getall/route.ts - Sayfalama Eklendi
 import { NextResponse } from "next/server";
 import prisma from "@/prisma/prismaConf";
+import { INITIAL_LIMIT } from "@/lib/settings";
 export const dynamic = 'force-dynamic';
 
 export async function GET(request: Request) {
-   // 1. URL'den 'limit' ve 'page' parametrelerini al
+   // 1. Get the 'limit' and 'page' parameters from the URL
    const { searchParams } = new URL(request.url);
-   const take = parseInt(searchParams.get("limit") || "20"); // Varsayılan 20 ürün
+   const take = parseInt(searchParams.get("limit") || INITIAL_LIMIT.toString()); // Varsayılan ürün sayisi
    const page = parseInt(searchParams.get("page") || "1"); // Varsayılan sayfa 1
    const skip = (page - 1) * take;
 

@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { CardDescription, CardFooter, CardHeader, CardTitle } from "../ui/card";
 import { ImagePlus, Upload, X } from "lucide-react";
-import { useRef, useState, ChangeEvent, FormEvent, useCallback, useEffect } from "react";
+import { useRef, useState, ChangeEvent, FormEvent,  useEffect } from "react";
 import Image from "next/image";
 import { useWebApp } from "@/context/WebAppContext"; // Telegram WebApp Context'i
 import { useRouter } from 'next/navigation';

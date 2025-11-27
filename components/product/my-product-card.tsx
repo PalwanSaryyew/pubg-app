@@ -1,166 +1,204 @@
-"use client"
+"use client";
 
-import { useState } from "react" // <-- State'i ekle
-import { useRouter } from "next/navigation"
-import { toast } from "sonner"
-import { 
-  // ... diğer ikonlar ...
-  MoreHorizontal, Edit, Trash, Eye, MessageSquare, PauseCircle, PlayCircle, Loader2 
-} from "lucide-react"
-// ... diğer importlar ...
-import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
+import { useState } from "react"; // <-- State'i ekle
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import Image from "next/image"
-import Link from "next/link"
-import { deleteProduct, toggleProductStatus } from "@/actions/product-actions"
-import { Product } from "@/lib/generated/prisma/client"
+   // ... diğer ikonlar ...
+   MoreHorizontal,
+   Edit,
+   Trash,
+   Eye,
+   MessageSquare,
+   PauseCircle,
+   PlayCircle,
+   Loader2,
+} from "lucide-react";
+// ... diğer importlar ...
+import { Card, CardFooter, CardHeader } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import {
+   DropdownMenu,
+   DropdownMenuContent,
+   DropdownMenuItem,
+   DropdownMenuLabel,
+   DropdownMenuSeparator,
+   DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import Image from "next/image";
+import Link from "next/link";
+import { deleteProduct, toggleProductStatus } from "@/actions/product-actions";
+import { Product } from "@/lib/generated/prisma/client";
 
 interface MyProductCardProps {
-  product: Product
+   product: Product;
 }
 
 export function MyProductCard({ product }: MyProductCardProps) {
-  const router = useRouter()
-  
-  // Yerel State'ler (Anlık tepki için)
-  const [isDeleted, setIsDeleted] = useState(false) // Kart silindi mi?
-  const [isPublished, setIsPublished] = useState(product.isPublished) // Yayın durumu
-  const [isLoading, setIsLoading] = useState(false) // İşlem sürüyor mu?
+   const router = useRouter();
 
-  // Eğer silindiyse, bileşeni hiç render etme (DOM'dan kaldır)
-  if (isDeleted) return null
+   // Yerel State'ler (Anlık tepki için)
+   const [isDeleted, setIsDeleted] = useState(false); // Kart silindi mi?
+   const [isPublished, setIsPublished] = useState(product.isPublished); // Yayın durumu
+   const [isLoading, setIsLoading] = useState(false); // İşlem sürüyor mu?
 
-  const handleToggleStatus = async () => {
-    setIsLoading(true)
-    
-    // 1. Hemen arayüzü güncelle (Optimistic)
-    const newStatus = !isPublished
-    setIsPublished(newStatus)
-    
-    try {
-      const result = await toggleProductStatus(product.id, isPublished)
-      if (result.success) {
-        toast.success(newStatus ? "Önüm satyşa çykaryldy" : "Önüm Satyşdan aýryldy")
-        router.refresh()
-      } else {
-        // Hata olursa eski haline döndür
-        setIsPublished(!newStatus)
-        toast.error("Statusy täzeläp bolmady")
+   // Eğer silindiyse, bileşeni hiç render etme (DOM'dan kaldır)
+   if (isDeleted) return null;
+
+   const handleToggleStatus = async () => {
+      setIsLoading(true);
+
+      // 1. Hemen arayüzü güncelle (Optimistic)
+      const newStatus = !isPublished;
+      setIsPublished(newStatus);
+
+      try {
+         const result = await toggleProductStatus(product.id, isPublished);
+         if (result.success) {
+            toast.success(
+               newStatus ? "Önüm satyşa çykaryldy" : "Önüm Satyşdan aýryldy"
+            );
+            router.refresh();
+         } else {
+            // Hata olursa eski haline döndür
+            setIsPublished(!newStatus);
+            toast.error("Statusy täzeläp bolmady");
+         }
+      } catch {
+         setIsPublished(!newStatus);
+         toast.error("Statusy täzeläp bolmady");
+      } finally {
+         setIsLoading(false);
       }
-    } catch (error) {
-       setIsPublished(!newStatus)
-       toast.error("Statusy täzeläp bolmady")
-    } finally {
-       setIsLoading(false)
-    }
-  }
+   };
 
-  const handleDelete = async () => {
-    const confirmDelete = confirm("Çyndanam önümi pozmakçymy?")
-    if (!confirmDelete) return
+   const handleDelete = async () => {
+      const confirmDelete = confirm("Çyndanam önümi pozmakçymy?");
+      if (!confirmDelete) return;
 
-    setIsLoading(true)
+      setIsLoading(true);
 
-    try {
-      const result = await deleteProduct(product.id)
+      try {
+         const result = await deleteProduct(product.id);
 
-      if (result.success) {
-        // 2. Başarılıysa kartı hemen yok et
-        setIsDeleted(true) 
-        toast.success("Önüm pozuldy")
-        router.refresh() // Arka planda yine de veriyi tazele
-      } else {
-        toast.error("Önümi pozmakda ýalňyşlyk ýüze çykdy")
+         if (result.success) {
+            // 2. Başarılıysa kartı hemen yok et
+            setIsDeleted(true);
+            toast.success("Önüm pozuldy");
+            router.refresh(); // Arka planda yine de veriyi tazele
+         } else {
+            toast.error("Önümi pozmakda ýalňyşlyk ýüze çykdy");
+         }
+      } catch {
+         toast.error("Ýalňyşlyk ýüze çykdy");
+      } finally {
+         setIsLoading(false);
       }
-    } catch (error) {
-      toast.error("Ýalňyşlyk ýüze çykdy")
-    } finally {
-      setIsLoading(false)
-    }
-  }
+   };
 
-  return (
-    <Card className={`overflow-hidden flex flex-col justify-between transition-opacity ${isLoading ? 'opacity-50' : 'opacity-100'}`}>
-      <div className="relative h-48 w-full">
-        <Image
-          src={product.images?.[0] || "/placeholder.png"}
-          alt={product.title}
-          fill
-          className="object-cover"
-        />
-        <div className="absolute top-2 right-2">
-            {/* State'teki isPublished değerini kullanıyoruz */}
-            <Badge variant={isPublished ? "default" : "secondary"}>
-                {isPublished ? "Satyşda" : "Satyşda däl"}
-            </Badge>
-        </div>
-      </div>
+   return (
+      <Card
+         className={`overflow-hidden flex flex-col justify-between transition-opacity ${
+            isLoading ? "opacity-50" : "opacity-100"
+         }`}
+      >
+         <div className="relative h-48 w-full">
+            <Image
+               src={product.images?.[0] || "/placeholder.png"}
+               alt={product.title}
+               fill
+               className="object-cover"
+            />
+            <div className="absolute top-2 right-2">
+               {/* State'teki isPublished değerini kullanıyoruz */}
+               <Badge variant={isPublished ? "default" : "secondary"}>
+                  {isPublished ? "Satyşda" : "Satyşda däl"}
+               </Badge>
+            </div>
+         </div>
 
-      <CardHeader className="pb-2">
-        <div className="flex justify-between items-start">
-            <h3 className="font-semibold text-lg line-clamp-1">{product.title}</h3>
-        </div>
-        <p className="text-sm text-muted-foreground">{product.price} TMT</p>
-      </CardHeader>
+         <CardHeader className="pb-2">
+            <div className="flex justify-between items-start">
+               <h3 className="font-semibold text-lg line-clamp-1">
+                  {product.title}
+               </h3>
+            </div>
+            <p className="text-sm text-muted-foreground">{product.price} TMT</p>
+         </CardHeader>
 
-      <CardFooter className="flex gap-2 pt-4">
-        <Button asChild variant="outline" className="flex-1" disabled={isLoading}>
-          <Link href={`/dashboard/edit/${product.id}`}>
-            <Edit className="w-4 h-4 mr-2" />
-            Düzediş
-          </Link>
-        </Button>
-
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="icon" disabled={isLoading}>
-              <MoreHorizontal className="w-4 h-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuLabel>Amallar</DropdownMenuLabel>
-            
-            <DropdownMenuItem asChild>
-              <Link href={`/product/${product.id}`} className="cursor-pointer">
-                <Eye className="w-4 h-4 mr-2" /> Synla
-              </Link>
-            </DropdownMenuItem>
-
-            <DropdownMenuItem asChild>
-              <Link href={`/dashboard/comments/${product.id}`} className="cursor-pointer">
-                <MessageSquare className="w-4 h-4 mr-2" /> Teswirler
-              </Link>
-            </DropdownMenuItem>
-
-            <DropdownMenuSeparator />
-
-            <DropdownMenuItem onClick={handleToggleStatus} className="cursor-pointer">
-              {isPublished ? (
-                 <><PauseCircle className="w-4 h-4 mr-2" /> Satyşdan aýyr</>
-              ) : (
-                 <><PlayCircle className="w-4 h-4 mr-2" /> Satyşa çykar</>
-              )}
-            </DropdownMenuItem>
-
-            <DropdownMenuItem 
-                onClick={handleDelete} 
-                className="text-red-600 cursor-pointer focus:text-red-600 focus:bg-red-50"
+         <CardFooter className="flex gap-2 pt-4">
+            <Button
+               asChild
+               variant="outline"
+               className="flex-1"
+               disabled={isLoading}
             >
-              {isLoading ? <Loader2 className="w-4 h-4 mr-2 animate-spin"/> : <Trash className="w-4 h-4 mr-2" />} 
-              Poz
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </CardFooter>
-    </Card>
-  )
+               <Link href={`/dashboard/edit/${product.id}`}>
+                  <Edit className="w-4 h-4 mr-2" />
+                  Düzediş
+               </Link>
+            </Button>
+
+            <DropdownMenu>
+               <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="icon" disabled={isLoading}>
+                     <MoreHorizontal className="w-4 h-4" />
+                  </Button>
+               </DropdownMenuTrigger>
+               <DropdownMenuContent align="end">
+                  <DropdownMenuLabel>Amallar</DropdownMenuLabel>
+
+                  <DropdownMenuItem asChild>
+                     <Link
+                        href={`/product/${product.id}`}
+                        className="cursor-pointer"
+                     >
+                        <Eye className="w-4 h-4 mr-2" /> Synla
+                     </Link>
+                  </DropdownMenuItem>
+
+                  <DropdownMenuItem asChild>
+                     <Link
+                        href={`/dashboard/comments/${product.id}`}
+                        className="cursor-pointer"
+                     >
+                        <MessageSquare className="w-4 h-4 mr-2" /> Teswirler
+                     </Link>
+                  </DropdownMenuItem>
+
+                  <DropdownMenuSeparator />
+
+                  <DropdownMenuItem
+                     onClick={handleToggleStatus}
+                     className="cursor-pointer"
+                  >
+                     {isPublished ? (
+                        <>
+                           <PauseCircle className="w-4 h-4 mr-2" /> Satyşdan
+                           aýyr
+                        </>
+                     ) : (
+                        <>
+                           <PlayCircle className="w-4 h-4 mr-2" /> Satyşa çykar
+                        </>
+                     )}
+                  </DropdownMenuItem>
+
+                  <DropdownMenuItem
+                     onClick={handleDelete}
+                     className="text-red-600 cursor-pointer focus:text-red-600 focus:bg-red-50"
+                  >
+                     {isLoading ? (
+                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                     ) : (
+                        <Trash className="w-4 h-4 mr-2" />
+                     )}
+                     Poz
+                  </DropdownMenuItem>
+               </DropdownMenuContent>
+            </DropdownMenu>
+         </CardFooter>
+      </Card>
+   );
 }
