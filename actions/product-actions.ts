@@ -30,6 +30,7 @@ export async function deleteProduct(productId: string) {
       revalidatePath("/myproducts");
       return { success: true };
    } catch (error) {
+      console.error("Delete product error:", error);
       return { success: false, error: "Silme işlemi başarısız" };
    }
 }

@@ -30,6 +30,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { deleteProduct, toggleProductStatus } from "@/actions/product-actions";
 import { Product } from "@/lib/generated/prisma/client";
+import { BrowserBackButtonDrawer } from "../popover/BrowserBackButtonDrawer";
 
 interface MyProductCardProps {
    product: Product;
@@ -150,12 +151,17 @@ export function MyProductCard({ product }: MyProductCardProps) {
                   <DropdownMenuLabel>Amallar</DropdownMenuLabel>
 
                   <DropdownMenuItem asChild>
-                     <Link
-                        href={`/product/${product.id}`}
-                        className="cursor-pointer"
+                     <BrowserBackButtonDrawer
+                        id={product.id}
+                        name={product.title}
+                        description={product.description}
+                        price={product.price}
+                        imageUrls={product.images}
                      >
-                        <Eye className="w-4 h-4 mr-2" /> Synla
-                     </Link>
+                        <span className="cursor-pointer">
+                           <Eye className="w-4 h-4 mr-2" /> Synla
+                        </span>
+                     </BrowserBackButtonDrawer>
                   </DropdownMenuItem>
 
                   <DropdownMenuItem asChild>

@@ -20,6 +20,8 @@ import {
 } from "@/components/ui/drawer";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import * as React from "react";
+import { MessageCircle, PanelBottomClose, Send } from "lucide-react";
+import { GiBuyCard } from "react-icons/gi";
 
 // TWA Tip Tanımlamaları (shareMessage özelliğini ekliyoruz)
 const isTwaAvailable = (
@@ -129,7 +131,7 @@ export function BrowserBackButtonDrawer({
          });
 
          if (!response.ok) {
-            throw new Error("API Hatası");
+            throw new Error("API Error");
          }
 
          const data = await response.json();
@@ -224,6 +226,7 @@ export function BrowserBackButtonDrawer({
                         disabled={isLoading && !isOpen}
                         className="w-full rounded-sm shadow-none border-none bg-popover hover:bg-secondary text-foreground"
                      >
+                        <GiBuyCard />
                         Satyn al
                      </Button>
 
@@ -233,6 +236,7 @@ export function BrowserBackButtonDrawer({
                         disabled={isLoading && !isOpen}
                         className="w-full rounded-sm shadow-none border-none bg-popover hover:bg-secondary text-foreground"
                      >
+                        <MessageCircle/>
                         Teswirler
                      </Button>
 
@@ -242,6 +246,7 @@ export function BrowserBackButtonDrawer({
                         disabled={(isLoading && !isOpen) || isSharing}
                         className="w-full rounded-sm shadow-none border-none bg-popover hover:bg-secondary text-foreground"
                      >
+                        <Send/>
                         {isSharing ? "Garaşyň..." : "Paýlaş"}
                      </Button>
 
@@ -250,6 +255,7 @@ export function BrowserBackButtonDrawer({
                            variant="secondary"
                            className="w-full rounded-sm shadow-none border-none bg-popover hover:bg-destructive hover:text-destructive-foreground text-foreground"
                         >
+                           <PanelBottomClose/>
                            Ýap
                         </Button>
                      </DrawerClose>
