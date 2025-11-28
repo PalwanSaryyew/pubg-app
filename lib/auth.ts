@@ -23,6 +23,9 @@ const BOT_TOKEN = env.TELEGRAM_BOT_TOKEN;
  * @returns Doğrulama başarılı ise true, aksi halde false.
  */
 export function validateTelegramInitData(initData: string): boolean {
+    if (process.env.NODE_ENV === 'development') {
+        return true;
+    }
     if (!BOT_TOKEN) {
         console.error("BOT_TOKEN ortam değişkeni tanımlı değil.");
         return false;
@@ -60,6 +63,16 @@ export function validateTelegramInitData(initData: string): boolean {
 
 // initData'dan kullanıcı verilerini (JSON string) güvenli bir şekilde çıkarır.
 export function getUserDataFromInitData(initData: string): TelegramUser | null {
+    if (process.env.NODE_ENV === 'development') {
+        return {
+            id: 123456789,
+            first_name: 'Dev',
+            last_name: 'User',
+            username: 'devuser',
+            language_code: 'en',
+            is_premium: true,
+        };
+    }
     const params = new URLSearchParams(initData);
     const userDataString = params.get('user') || params.get('receiver');
     

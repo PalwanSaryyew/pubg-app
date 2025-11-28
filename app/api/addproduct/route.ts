@@ -28,7 +28,7 @@ export async function POST(request: NextRequest) {
       const description = formData.get("description") as string | null;
       const files = formData.getAll("images") as File[];
 
-      // ********** 4. Doğrulama **********
+      // ********** 4. Doğrulama (Geliştirme ve Production için ayrıldı) **********
 
       if (!initData) {
          return NextResponse.json(
@@ -37,20 +37,24 @@ export async function POST(request: NextRequest) {
          );
       }
 
-      const isDataValid = await validateTelegramInitData(initData);
-      const userData = await getUserDataFromInitData(initData);
+      // Her durumda kullanıcı verisini ayrıştırmayı dene
+      const userData = getUserDataFromInitData(initData);
 
-      // Güvenlik Doğrulaması
-      if (process.env.DEVELOPMENT !== "true" && !isDataValid) {
-         return NextResponse.json(
-            { error: "Yetkisiz erişim." },
-            { status: 401 }
-         );
+      // Sadece production ortamında kriptografik doğrulama yap
+      if (process.env.NODE_ENV === "production") {
+         const isDataValid = validateTelegramInitData(initData);
+         if (!isDataValid) {
+            return NextResponse.json(
+               { error: "Geçersiz initData. Yetkisiz erişim." },
+               { status: 401 }
+            );
+         }
       }
-
+      
+      // userData ayrıştırılabildi mi ve içinde 'id' var mı diye kontrol et
       if (!userData?.id) {
          return NextResponse.json(
-            { error: "Kullanıcı kimliği alınamadı." },
+            { error: "Kullanıcı kimliği alınamadı. initData formatı yanlış olabilir." },
             { status: 400 }
          );
       }
