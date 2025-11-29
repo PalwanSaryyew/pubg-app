@@ -21,30 +21,33 @@ interface Product {
 }
 
 export default function MyProductsPage() {
-   const webApp = useWebApp();
+   // Güncellenmiş context'ten hem webApp hem de initData'yı al
+   const { initData } = useWebApp(); 
    const [products, setProducts] = useState<Product[]>([]);
+   // isLoading başlangıçta false olabilir, çünkü initData'nın gelmesini bekleyeceğiz
    const [isLoading, setIsLoading] = useState(true);
    const [error, setError] = useState<string | null>(null);
 
    useEffect(() => {
-      // initData mevcut değilse Telegram ortamında değiliz demektir.
-      if (!webApp?.initData) {
-         setIsLoading(false);
-         setError("Telegram ortamı tespit edilemedi.");
+      // initData null ise (henüz yükleniyor) veya boş ise bir şey yapma
+      if (!initData) {
+         // Eğer initData'nın gelmesini bekliyorsak, isLoading true kalabilir.
+         // Eğer context'te bir hata oluştuysa initData hiç gelmeyebilir.
+         // Şimdilik sadece bekleyelim.
          return;
       }
 
       const fetchProducts = async () => {
          setIsLoading(true);
          setError(null);
-
          try {
+            console.log("API'ye gönderilen initData:", initData);
             const response = await fetch("/api/myproducts", {
                method: "POST",
                headers: {
                   "Content-Type": "application/json",
                },
-               body: JSON.stringify({ initData: webApp.initData }),
+               body: JSON.stringify({ initData: initData }),
             });
 
             if (response.ok) {
@@ -57,15 +60,17 @@ export default function MyProductsPage() {
                );
             }
          } catch (err) {
-            console.error(err);
-            setError("Ağ hatası: Sunucuya erişilemiyor.");
+            const errorMessage = err instanceof Error ? err.message : String(err);
+            console.error("Fetch hatası:", errorMessage);
+            setError(`Ağ hatası: ${errorMessage}`);
          } finally {
             setIsLoading(false);
          }
       };
 
       fetchProducts();
-   }, [webApp?.initData]); // initData değiştiğinde tekrar çek
+      
+   }, [initData]); // useEffect artık sadece ve sadece initData'ya bağımlı
 
    return (
       <div className="p-4 max-w-2xl mx-auto">

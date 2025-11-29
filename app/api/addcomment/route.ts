@@ -26,7 +26,7 @@ export async function POST(request: NextRequest) {
       const isDataValid = await validateTelegramInitData(initData);
       const userData = await getUserDataFromInitData(initData);
 
-      if ((process.env.DEVELOPMENT !== "true" && !isDataValid) || !userData?.id) {
+      if ((process.env.NODE_ENV !== "development" && !isDataValid) || !userData?.id) {
          return NextResponse.json(
             { error: "Geçersiz kullanıcı kimliği veya yetkisiz erişim." },
             { status: 401 }
