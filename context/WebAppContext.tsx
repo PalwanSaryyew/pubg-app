@@ -3,6 +3,7 @@
 
 import React, { createContext, useContext, useEffect, useState } from "react";
 import WebApp from "@twa-dev/sdk";
+import { DEV_USER_ID } from "@/lib/settings";
 
 // Context'in yeni veri yapısı: Hem SDK nesnesini hem de initData'yı ayrı ayrı tutar
 export interface WebAppContextType {
@@ -44,7 +45,7 @@ export const WebAppProvider = ({ children }: { children: React.ReactNode }) => {
                // Gerçek initData yoksa (örn. masaüstü tarayıcı), sahte veri oluştur
                console.log("Gerçek initData bulunamadı, sahte veri oluşturuluyor.");
                const testUser = {
-                  id: 999999999,
+                  id: DEV_USER_ID,
                   first_name: "Test",
                   last_name: "User",
                   username: "testuser",
