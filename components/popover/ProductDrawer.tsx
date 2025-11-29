@@ -1,4 +1,4 @@
-// app/components/BrowserBackButtonDrawer.tsx
+// app/components/ProductDrawer.tsx
 "use client";
 
 import { CommentsDrawer } from "./CommentsDrawer";
@@ -38,7 +38,7 @@ const isTwaAvailable = (
    );
 };
 
-export function BrowserBackButtonDrawer({
+export function ProductDrawer({
    children,
    id,
    name,

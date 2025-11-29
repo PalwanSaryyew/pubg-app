@@ -7,7 +7,7 @@ import {
    CardTitle,
 } from "@/components/ui/card";
 import Image from "next/image";
-import { BrowserBackButtonDrawer } from "../popover/BrowserBackButtonDrawer";
+import { ProductDrawer } from "../popover/ProductDrawer";
 
 export interface ProductCardProps {
    id: string;
@@ -25,7 +25,7 @@ export default function ProductCard({
    imageUrls,
 }: ProductCardProps) {
    return (
-      <BrowserBackButtonDrawer
+      <ProductDrawer
          id={id}
          name={name}
          description={description}
@@ -56,6 +56,6 @@ export default function ProductCard({
                {price} TMT
             </CardFooter>
          </Card>
-      </BrowserBackButtonDrawer>
+      </ProductDrawer>
    );
 }

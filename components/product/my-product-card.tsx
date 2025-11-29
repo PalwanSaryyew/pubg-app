@@ -30,7 +30,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { deleteProduct, toggleProductStatus } from "@/actions/product-actions";
 import { Product } from "@/lib/generated/prisma/client";
-import { BrowserBackButtonDrawer } from "../popover/BrowserBackButtonDrawer";
+import { ProductDrawer } from "../popover/ProductDrawer";
+import { cn } from "@/lib/utils";
 
 interface MyProductCardProps {
    product: Product;
@@ -151,17 +152,21 @@ export function MyProductCard({ product }: MyProductCardProps) {
                   <DropdownMenuLabel>Amallar</DropdownMenuLabel>
 
                   <DropdownMenuItem asChild>
-                     <BrowserBackButtonDrawer
+                     <ProductDrawer
                         id={product.id}
                         name={product.title}
                         description={product.description}
                         price={product.price}
                         imageUrls={product.images}
                      >
-                        <span className="cursor-pointer">
+                        <span
+                           className={cn(
+                              "focus:bg-accent focus:text-accent-foreground data-[variant=destructive]:text-destructive data-[variant=destructive]:focus:bg-destructive/10 dark:data-[variant=destructive]:focus:bg-destructive/20 data-[variant=destructive]:focus:text-destructive data-[variant=destructive]:*:[svg]:!text-destructive [&_svg:not([class*='text-'])]:text-muted-foreground relative flex cursor-default items-center gap-2 rounded-sm px-2 py-1.5 text-sm outline-hidden select-none data-[disabled]:pointer-events-none data-[disabled]:opacity-50 data-[inset]:pl-8 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4"
+                           )}
+                        >
                            <Eye className="w-4 h-4 mr-2" /> Synla
                         </span>
-                     </BrowserBackButtonDrawer>
+                     </ProductDrawer>
                   </DropdownMenuItem>
 
                   <DropdownMenuItem asChild>
