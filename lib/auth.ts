@@ -2,6 +2,7 @@
 
 import * as crypto from 'crypto';
 import { env } from 'process';
+import { DEV_USER_ID } from './settings';
 // @/lib/auth içinde veya ayrı bir types dosyasında
 export interface TelegramUser {
     id: number; // Telegram ID'si genellikle number (veya BigInt) olarak gelir, ancak JSON.parse bunu number olarak verir.
@@ -65,7 +66,7 @@ export function validateTelegramInitData(initData: string): boolean {
 export function getUserDataFromInitData(initData: string): TelegramUser | null {
     if (process.env.NODE_ENV === 'development') {
         return {
-            id: 123456789,
+            id: DEV_USER_ID,
             first_name: 'Dev',
             last_name: 'User',
             username: 'devuser',
