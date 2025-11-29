@@ -269,7 +269,6 @@ export function ProductDrawer({
             productName={name}
             isOpen={isCommentsOpen}
             onOpenChange={setIsCommentsOpen}
-            webApp={webApp}
          />
       </>
    );

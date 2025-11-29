@@ -1,3 +1,4 @@
+// components/product/my-product-card.tsx 
 "use client";
 
 import { useState } from "react"; // <-- State'i ekle
@@ -31,7 +32,39 @@ import Link from "next/link";
 import { deleteProduct, toggleProductStatus } from "@/actions/product-actions";
 import { Product } from "@/lib/generated/prisma/client";
 import { ProductDrawer } from "../popover/ProductDrawer";
+import { CommentsDrawer } from "../popover/CommentsDrawer"; // CommentsDrawer'ı içe aktar
 import { cn } from "@/lib/utils";
+
+// CommentsDrawer'ı tetikleyecek ve yönetecek yeni bileşen
+function CommentsDrawerTrigger({
+   children,
+   productId,
+   productName,
+}: {
+   children: React.ReactNode;
+   productId: string;
+   productName: string;
+}) {
+   const [isOpen, setIsOpen] = useState(false);
+   return (
+      <>
+         <span
+            onClick={() => setIsOpen(true)}
+            className={cn(
+               "focus:bg-accent focus:text-accent-foreground data-[variant=destructive]:text-destructive data-[variant=destructive]:focus:bg-destructive/10 dark:data-[variant=destructive]:focus:bg-destructive/20 data-[variant=destructive]:focus:text-destructive data-[variant=destructive]:*:[svg]:!text-destructive [&_svg:not([class*='text-'])]:text-muted-foreground relative flex cursor-default items-center gap-2 rounded-sm px-2 py-1.5 text-sm outline-hidden select-none data-[disabled]:pointer-events-none data-[disabled]:opacity-50 data-[inset]:pl-8 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4"
+            )}
+         >
+            {children}
+         </span>
+         <CommentsDrawer
+            isOpen={isOpen}
+            onOpenChange={setIsOpen}
+            productId={productId}
+            productName={productName}
+         />
+      </>
+   );
+}
 
 interface MyProductCardProps {
    product: Product;
@@ -169,13 +202,16 @@ export function MyProductCard({ product }: MyProductCardProps) {
                      </ProductDrawer>
                   </DropdownMenuItem>
 
-                  <DropdownMenuItem asChild>
-                     <Link
-                        href={`/dashboard/comments/${product.id}`}
-                        className="cursor-pointer"
+                  <DropdownMenuItem
+                     onSelect={(e) => e.preventDefault()}
+                     asChild
+                  >
+                     <CommentsDrawerTrigger
+                        productId={product.id}
+                        productName={product.title}
                      >
                         <MessageSquare className="w-4 h-4 mr-2" /> Teswirler
-                     </Link>
+                     </CommentsDrawerTrigger>
                   </DropdownMenuItem>
 
                   <DropdownMenuSeparator />

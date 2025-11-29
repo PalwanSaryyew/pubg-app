@@ -14,7 +14,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { RiTelegram2Fill } from "react-icons/ri";
-import { WebApp } from "@twa-dev/types";
+import { useWebApp } from "@/context/WebAppContext";
 
 // Gelen yorumlar için tip tanımı
 type CommentWithUser = {
@@ -27,21 +27,11 @@ type CommentWithUser = {
    };
 };
 
-// TWA Tip Tanımlamaları
-const isTwaAvailable = (
-   app: WebApp
-): app is WebApp & {
-   initData: string;
-} => {
-   return !!app.initData;
-};
-
 interface CommentsDrawerProps {
    productId: string;
    productName: string;
    isOpen: boolean;
    onOpenChange: (open: boolean) => void;
-   webApp?: WebApp;
 }
 
 export const CommentsDrawer: React.FC<CommentsDrawerProps> = ({
@@ -49,8 +39,8 @@ export const CommentsDrawer: React.FC<CommentsDrawerProps> = ({
    productName,
    isOpen,
    onOpenChange,
-   webApp,
 }) => {
+   const { initData } = useWebApp();
    const [comments, setComments] = React.useState<CommentWithUser[]>([]);
    const [isLoadingComments, setIsLoadingComments] = React.useState(false);
    const [error, setError] = React.useState<string | null>(null);
@@ -90,7 +80,7 @@ export const CommentsDrawer: React.FC<CommentsDrawerProps> = ({
 
       if (!commentText.trim()) return;
 
-      if (!webApp || !isTwaAvailable(webApp) || !webApp.initData) {
+      if (!initData) {
          setSubmitError("Yorum gönderebilmek için Telegram uygulaması gereklidir.");
          return;
       }
@@ -103,12 +93,12 @@ export const CommentsDrawer: React.FC<CommentsDrawerProps> = ({
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
-               initData: webApp.initData,
+               initData: initData,
                productId: productId,
                text: commentText,
             }),
          });
-
+		 
          if (!response.ok) {
             const errorData = await response.json();
             throw new Error(errorData.error || "Yorum gönderilemedi.");
