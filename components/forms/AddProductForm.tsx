@@ -103,7 +103,7 @@ export default function AddProductForm() {
         const formData = new FormData(form); 
         
         // Telegram initData'yı ekle
-        formData.append('initData', webApp ? webApp.initData : '...');
+        formData.append('initData', webApp && webApp.initData ? webApp.initData : '...');
 
         // Resimleri FormData'ya ekle
         // Not: <input name="images"> alanını silebiliriz, ancak burada formData.delete('images') yapmaya gerek yok.
