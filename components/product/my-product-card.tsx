@@ -27,7 +27,7 @@ import {
    DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import Image from "next/image";
-import { deleteProduct, toggleProductStatus } from "@/actions/product-actions";
+import { useWebApp } from "@/context/WebAppContext";
 import { Product } from "@/lib/generated/prisma/client";
 import { ProductDrawer } from "../popover/ProductDrawer";
 import { CommentsDrawer } from "../popover/CommentsDrawer"; // CommentsDrawer'ı içe aktar
@@ -73,6 +73,7 @@ interface MyProductCardProps {
 
 export function MyProductCard({ product }: MyProductCardProps) {
    const router = useRouter();
+   const { initData } = useWebApp();
 
    // Yerel State'ler (Anlık tepki için)
    const [isDeleted, setIsDeleted] = useState(false); // Kart silindi mi?
@@ -90,8 +91,15 @@ export function MyProductCard({ product }: MyProductCardProps) {
       setIsPublished(newStatus);
 
       try {
-         const result = await toggleProductStatus(product.id, isPublished);
-         if (result.success) {
+         const response = await fetch(`/api/product/${product.id}`, {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ initData, isPublished }),
+         });
+
+         const result = await response.json();
+
+         if (response.ok && result.success) {
             toast.success(
                newStatus ? "Önüm satyşa çykaryldy" : "Önüm Satyşdan aýryldy"
             );
@@ -99,7 +107,7 @@ export function MyProductCard({ product }: MyProductCardProps) {
          } else {
             // Hata olursa eski haline döndür
             setIsPublished(!newStatus);
-            toast.error("Statusy täzeläp bolmady");
+            toast.error(result.error || "Statusy täzeläp bolmady");
          }
       } catch {
          setIsPublished(!newStatus);
@@ -116,15 +124,21 @@ export function MyProductCard({ product }: MyProductCardProps) {
       setIsLoading(true);
 
       try {
-         const result = await deleteProduct(product.id);
+         const response = await fetch(`/api/product/${product.id}`, {
+            method: "DELETE",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ initData }),
+         });
 
-         if (result.success) {
+         const result = await response.json();
+
+         if (response.ok && result.success) {
             // 2. Başarılıysa kartı hemen yok et
             setIsDeleted(true);
             toast.success("Önüm pozuldy");
             router.refresh(); // Arka planda yine de veriyi tazele
          } else {
-            toast.error("Önümi pozmakda ýalňyşlyk ýüze çykdy");
+            toast.error(result.error || "Önümi pozmakda ýalňyşlyk ýüze çykdy");
          }
       } catch {
          toast.error("Ýalňyşlyk ýüze çykdy");
