@@ -24,7 +24,7 @@ const BOT_TOKEN = env.TELEGRAM_BOT_TOKEN;
  * @returns Doğrulama başarılı ise true, aksi halde false.
  */
 export function validateTelegramInitData(initData: string): boolean {
-    if (process.env.NODE_ENV === 'development') {
+    if (process.env.DEVELOPMENT === 'true') {
         return true;
     }
     if (!BOT_TOKEN) {

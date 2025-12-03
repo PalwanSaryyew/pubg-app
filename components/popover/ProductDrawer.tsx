@@ -1,4 +1,4 @@
-// app/components/ProductDrawer.tsx
+// components/popover/ProductDrawer.tsx
 "use client";
 
 import { CommentsDrawer } from "./CommentsDrawer";

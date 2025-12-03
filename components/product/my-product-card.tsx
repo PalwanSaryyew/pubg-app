@@ -7,7 +7,6 @@ import { toast } from "sonner";
 import {
    // ... diğer ikonlar ...
    MoreHorizontal,
-   Edit,
    Trash,
    Eye,
    MessageSquare,
@@ -28,12 +27,14 @@ import {
    DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import Image from "next/image";
-import Link from "next/link";
 import { deleteProduct, toggleProductStatus } from "@/actions/product-actions";
 import { Product } from "@/lib/generated/prisma/client";
 import { ProductDrawer } from "../popover/ProductDrawer";
 import { CommentsDrawer } from "../popover/CommentsDrawer"; // CommentsDrawer'ı içe aktar
 import { cn } from "@/lib/utils";
+import { EditProduct } from "./EditProduct";
+
+// ... (other code) ...
 
 // CommentsDrawer'ı tetikleyecek ve yönetecek yeni bileşen
 function CommentsDrawerTrigger({
@@ -162,18 +163,10 @@ export function MyProductCard({ product }: MyProductCardProps) {
             <p className="text-sm text-muted-foreground">{product.price} TMT</p>
          </CardHeader>
 
+
+
          <CardFooter className="flex gap-2 pt-4">
-            <Button
-               asChild
-               variant="outline"
-               className="flex-1"
-               disabled={isLoading}
-            >
-               <Link href={`/dashboard/edit/${product.id}`}>
-                  <Edit className="w-4 h-4 mr-2" />
-                  Düzediş
-               </Link>
-            </Button>
+            <EditProduct product={product} disabled={isLoading} />
 
             <DropdownMenu>
                <DropdownMenuTrigger asChild>
