@@ -2,7 +2,8 @@
 "use server";
 
 import prisma from "@/prisma/prismaConf";
-import { revalidatePath } from "next/cache";
+import fs from "fs/promises";
+import path from "path";
 
 export async function toggleProductStatus(
    productId: string,
@@ -13,17 +14,12 @@ export async function toggleProductStatus(
          where: { id: productId },
          data: { isPublished: !currentStatus },
       });
-      // Sunucu önbelleğini temizle
-      revalidatePath("/myproducts");
       return { success: true };
    } catch (error) {
       console.error("Status update error:", error);
       return { success: false, error: "Veritabanı hatası" };
    }
 }
-
-import fs from "fs/promises";
-import path from "path";
 
 export async function deleteProduct(productId: string) {
    try {
@@ -53,7 +49,6 @@ export async function deleteProduct(productId: string) {
       await prisma.product.delete({
          where: { id: productId },
       });
-      revalidatePath("/myproducts");
       return { success: true };
    } catch (error) {
       console.error("Delete product error:", error);

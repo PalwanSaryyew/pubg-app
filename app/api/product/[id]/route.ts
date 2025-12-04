@@ -66,13 +66,14 @@ export async function DELETE(
 
       const result = await deleteProduct(productId);
 
-      if (!result.success) {
+      if (result.success) {
          return NextResponse.json({ success: true }, { status: 200 });
+      } else {
+         return NextResponse.json(
+            { success: false, error: result.error },
+            { status: 500 }
+         );
       }
-      return NextResponse.json(
-         { success: false, error: result.error },
-         { status: 500 }
-      );
    } catch (error) {
       const errorMessage =
          error instanceof Error ? error.message : String(error);
@@ -145,15 +146,17 @@ export async function PATCH(
          );
       }
 
-      const result = await toggleProductStatus(productId, !isPublished);
+      const result = await toggleProductStatus(productId, isPublished);
+      console.log(result);
 
-      if (!result.success) {
+      if (result.success) {
          return NextResponse.json({ success: true }, { status: 200 });
+      } else {
+         return NextResponse.json(
+            { success: false, error: result.error },
+            { status: 500 }
+         );
       }
-      return NextResponse.json(
-         { success: false, error: result.error },
-         { status: 500 }
-      );
    } catch (error) {
       const errorMessage =
          error instanceof Error ? error.message : String(error);

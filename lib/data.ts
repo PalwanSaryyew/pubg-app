@@ -14,6 +14,7 @@ export async function getProducts({
     const skip = (page - 1) * limit;
     try {
         const products = await prisma.product.findMany({
+            where: { isPublished: true },
             skip: skip,
             take: limit,
             orderBy: { createdAt: "desc" },

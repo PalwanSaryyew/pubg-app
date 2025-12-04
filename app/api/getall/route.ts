@@ -13,6 +13,7 @@ export async function GET(request: Request) {
 
    try {
       const products = await prisma.product.findMany({
+         where: { isPublished: true },
          // Sayfalama için 'skip' ve 'take' kullan
          skip: skip,
          take: take,
@@ -21,7 +22,9 @@ export async function GET(request: Request) {
       });
 
       // Toplam ürün sayısını da çekmek iyi bir pratiktir (Önerilir!)
-      // const totalCount = await prisma.product.count();
+      // const totalCount = await prisma.product.count({
+      //    where: { isPublished: true },
+      // });
 
       return NextResponse.json(
          {
